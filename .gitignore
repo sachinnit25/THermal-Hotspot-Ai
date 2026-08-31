@@ -1,0 +1,17 @@
+# Environment & API Key Secrets
+.env
+.env.local
+.env.production
+
+# Local Databases & Caches
+thermalguard.db
+__pycache__/
+*/__pycache__/
+*.pyc
+
+# Virtual Environment & Vercel Artifacts
+venv/
+.vercel/
+node_modules/
+
+.vercel
