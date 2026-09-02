@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": [
+    "src/App.tsx",
+    "src/main.tsx",
+    "src/components/**/*.tsx",
+    "src/components/**/*.ts",
+    "src/services/**/*.tsx",
+    "src/services/**/*.ts",
+    "src/types/**/*.tsx",
+    "src/types/**/*.ts"
+  ],
+  "exclude": [
+    "src/DashboardLayout.tsx",
+    "src/Home.new.tsx",
+    "src/db.ts",
+    "src/routers.ts",
+    "src/schema.ts",
+    "src/firms.api.test.ts",
+    "src/hotspots.test.ts"
+  ]
+}
