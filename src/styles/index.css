@@ -2,7 +2,6 @@
 
 @import 'leaflet/dist/leaflet.css';
 
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -12,209 +11,1168 @@
   color-scheme: dark;
 }
 
-/* Deep Obsidian Canvas */
+/* =========================================================
+   THERMALGUARD AI — AEROSPACE / MISSION CONTROL THEME
+   ========================================================= */
+
+/* Deep Space Canvas */
 body {
-  background-color: #06070B;
-  color: #E2E8F0;
+  background-color: #05080D;
+  color: #E5E7EB;
   overflow-x: hidden;
 }
 
-/* Signature Fluid 3D Mesh Gradient Blobs (Matching Reference Image) */
-.mesh-blob-magenta {
-  position: fixed;
-  top: 5%;
-  left: 20%;
-  width: 38vw;
-  height: 38vw;
-  border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
-  background: radial-gradient(circle, #FF007A 0%, #D80064 45%, rgba(255, 0, 122, 0) 75%);
-  filter: blur(85px);
-  opacity: 0.65;
-  pointer-events: none;
-  z-index: 0;
-}
+/* =========================================================
+   AMBIENT BACKGROUND
+   No purple/pink/coral mesh blobs.
+   Subtle aerospace atmosphere only.
+   ========================================================= */
 
-.mesh-blob-purple {
-  position: fixed;
-  top: 15%;
-  left: 35%;
-  width: 42vw;
-  height: 42vw;
-  border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-  background: radial-gradient(circle, #7928CA 0%, #581C87 50%, rgba(121, 40, 202, 0) 75%);
-  filter: blur(95px);
-  opacity: 0.55;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.mesh-blob-coral {
-  position: fixed;
-  bottom: 10%;
-  left: 30%;
-  width: 40vw;
-  height: 40vw;
-  border-radius: 50% 50% 40% 60% / 40% 60% 50% 50%;
-  background: radial-gradient(circle, #FF5722 0%, #E64A19 50%, rgba(255, 87, 34, 0) 75%);
-  filter: blur(85px);
-  opacity: 0.70;
-  pointer-events: none;
-  z-index: 0;
-}
-
+.mesh-blob-magenta,
+.mesh-blob-purple,
+.mesh-blob-coral,
 .mesh-blob-amber {
-  position: fixed;
-  bottom: 5%;
-  right: 25%;
-  width: 35vw;
-  height: 35vw;
-  border-radius: 40% 60% 60% 40% / 50% 50% 50% 50%;
-  background: radial-gradient(circle, #FFB703 0%, #FB8500 50%, rgba(255, 183, 3, 0) 75%);
-  filter: blur(80px);
-  opacity: 0.65;
-  pointer-events: none;
-  z-index: 0;
+  display: none;
 }
 
-/* Outer Sleek Double Frame (From Reference) */
+/* =========================================================
+   OUTER APPLICATION FRAME
+   ========================================================= */
+
 .virevo-outer-frame {
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 36px;
-  background: rgba(10, 12, 18, 0.78);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.85), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 28px;
+  background: rgba(7, 12, 18, 0.94);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  box-shadow:
+    0 30px 80px -20px rgba(0, 0, 0, 0.85),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
 }
 
-/* Frosted Glassmorphic Cards */
+/* =========================================================
+   MISSION CONTROL CARDS
+   ========================================================= */
+
 .virevo-card {
-  background: linear-gradient(145deg, rgba(18, 22, 32, 0.75), rgba(10, 12, 18, 0.88));
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 24px;
-  box-shadow: 0 14px 35px -5px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  background: #0B1118;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  border: 1px solid rgba(148, 163, 184, 0.14);
+  border-radius: 18px;
+
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .virevo-card:hover {
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(56, 189, 248, 0.30);
+
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.45),
+    0 0 18px rgba(56, 189, 248, 0.06);
 }
 
-/* Gradient Utility Classes */
+/* =========================================================
+   GRADIENT UTILITY CLASSES
+   Kept under the old names so existing components
+   continue working.
+   ========================================================= */
+
 .bg-virevo-gradient {
-  background: linear-gradient(135deg, #FF007A 0%, #7928CA 35%, #FF5722 70%, #FFB703 100%);
+  background: #0B1118;
 }
 
 .text-virevo-gradient {
-  background: linear-gradient(135deg, #FF2A6D 0%, #A855F7 40%, #FF6B35 75%, #FFD000 100%);
+  background: linear-gradient(
+    90deg,
+    #38BDF8 0%,
+    #7DD3FC 100%
+  );
+
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* Glowing Progress Bar Gradients */
+/* =========================================================
+   THERMAL / DATA PROGRESS BARS
+   ========================================================= */
+
 .gradient-bar-fill-1 {
-  background: linear-gradient(90deg, #FF007A 0%, #FF2A6D 50%, #FF5722 100%);
-  box-shadow: 0 0 14px rgba(255, 0, 122, 0.6);
+  background: #38BDF8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.45);
 }
 
 .gradient-bar-fill-2 {
-  background: linear-gradient(90deg, #7928CA 0%, #9333EA 50%, #FF5722 100%);
-  box-shadow: 0 0 14px rgba(147, 51, 234, 0.5);
+  background: #FF8A00;
+  box-shadow: 0 0 10px rgba(255, 138, 0, 0.45);
 }
 
 .gradient-bar-fill-3 {
-  background: linear-gradient(90deg, #FF5722 0%, #FF8A00 50%, #FFB703 100%);
-  box-shadow: 0 0 14px rgba(255, 87, 34, 0.6);
+  background: #FF3B30;
+  box-shadow: 0 0 12px rgba(255, 59, 48, 0.5);
 }
 
-/* Sleek Pill Buttons */
+/* =========================================================
+   MISSION CONTROL ACTIVE PILL
+   ========================================================= */
+
 .virevo-pill-active {
-  background: linear-gradient(135deg, rgba(255, 0, 122, 0.25) 0%, rgba(255, 87, 34, 0.25) 100%);
-  border: 1px solid rgba(255, 42, 109, 0.5);
-  color: #FFFFFF;
-  box-shadow: 0 0 15px rgba(255, 0, 122, 0.35);
+  background: rgba(56, 189, 248, 0.09);
+  border: 1px solid rgba(56, 189, 248, 0.40);
+  color: #E0F2FE;
+
+  box-shadow:
+    0 0 12px rgba(56, 189, 248, 0.10);
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-/* High-Contrast White Action Buttons (Matching Get Started & Download App in Reference) */
+.virevo-pill-active:hover {
+  background: rgba(56, 189, 248, 0.14);
+  border-color: rgba(56, 189, 248, 0.55);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.16);
+}
+
+/* =========================================================
+   HIGH-CONTRAST ACTION BUTTONS
+   ========================================================= */
+
 .btn-virevo-white {
-  background: #FFFFFF;
-  color: #0A0D14;
+  background: #E5E7EB;
+  color: #05080D;
+
   font-weight: 700;
   border-radius: 9999px;
-  transition: all 0.2s ease;
-  box-shadow: 0 8px 24px -4px rgba(255, 255, 255, 0.3);
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
 .btn-virevo-white:hover {
-  background: #F1F5F9;
+  background: #FFFFFF;
   transform: translateY(-1px);
-  box-shadow: 0 12px 28px -4px rgba(255, 255, 255, 0.45);
+
+  box-shadow:
+    0 6px 20px rgba(255, 255, 255, 0.14);
 }
 
-/* Audio Waveform Animation */
+/* =========================================================
+   AUDIO WAVEFORM
+   ========================================================= */
+
 @keyframes audioWave {
-  0%, 100% { height: 6px; }
-  50% { height: 22px; }
+  0%, 100% {
+    height: 6px;
+  }
+
+  50% {
+    height: 22px;
+  }
 }
 
 .audio-bar {
   animation: audioWave 1.4s ease-in-out infinite;
 }
 
-/* Compass Needle Rotation */
+/* =========================================================
+   COMPASS NEEDLE
+   ========================================================= */
+
 @keyframes compassSway {
-  0% { transform: rotate(-8deg); }
-  50% { transform: rotate(14deg); }
-  100% { transform: rotate(-8deg); }
+  0% {
+    transform: rotate(-8deg);
+  }
+
+  50% {
+    transform: rotate(14deg);
+  }
+
+  100% {
+    transform: rotate(-8deg);
+  }
 }
 
 .compass-needle-animated {
   animation: compassSway 4s ease-in-out infinite;
 }
 
-/* Custom Scrollbars */
+/* =========================================================
+   CUSTOM SCROLLBARS
+   ========================================================= */
+
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
+
 ::-webkit-scrollbar-track {
-  background: rgba(10, 12, 18, 0.8);
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 42, 109, 0.35);
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 87, 34, 0.65);
+  background: #070C12;
 }
 
-/* Leaflet Container Customization */
+::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.28);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.55);
+}
+
+/* =========================================================
+   LEAFLET MAP
+   ========================================================= */
+
 .leaflet-container {
-  background: #080A10 !important;
+  background: #080C12 !important;
   font-family: inherit;
 }
 
 .leaflet-popup-content-wrapper {
-  background: rgba(12, 15, 24, 0.95) !important;
+  background: #0B1118 !important;
   color: #E2E8F0 !important;
-  border: 1px solid rgba(255, 42, 109, 0.4) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85), 0 0 18px rgba(255, 0, 122, 0.3) !important;
-  backdrop-filter: blur(16px) !important;
+
+  border: 1px solid rgba(56, 189, 248, 0.32) !important;
+  border-radius: 14px !important;
+
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.85),
+    0 0 14px rgba(56, 189, 248, 0.10) !important;
+
+  backdrop-filter: blur(14px) !important;
 }
 
 .leaflet-popup-tip {
-  background: rgba(12, 15, 24, 0.95) !important;
-  border: 1px solid rgba(255, 42, 109, 0.4) !important;
+  background: #0B1118 !important;
+  border: 1px solid rgba(56, 189, 248, 0.28) !important;
 }
 
-/* Radar pulse animation */
+.leaflet-popup-content {
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* =========================================================
+   RADAR / HOTSPOT PULSE
+   ========================================================= */
+
 @keyframes gradient-pulse {
-  0% { transform: scale(0.9); opacity: 0.85; }
-  50% { transform: scale(1.6); opacity: 0; }
-  100% { transform: scale(0.9); opacity: 0; }
+  0% {
+    transform: scale(0.9);
+    opacity: 0.85;
+  }
+
+  50% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
 }
 
 .animate-gradient-pulse {
-  animation: gradient-pulse 2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  animation:
+    gradient-pulse 2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+
+/* =========================================================
+   THERMALGUARD AI — CINEMATIC INTRO
+   ========================================================= */
+
+.tg-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 50% 48%,
+      rgba(20, 40, 70, 0.28),
+      transparent 32%
+    ),
+    #020409;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  isolation: isolate;
+
+  animation: tgIntroIn 0.8s ease-out both;
+}
+
+.tg-intro-exit {
+  animation: tgIntroExit 0.7s ease-in forwards;
+  pointer-events: none;
+}
+
+/* =========================================================
+   STARS
+   ========================================================= */
+
+.tg-stars {
+  position: absolute;
+  inset: 0;
+  opacity: 0.65;
+
+  background-image:
+    radial-gradient(circle at 12% 20%, rgba(255,255,255,0.8) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 27% 72%, rgba(255,255,255,0.55) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 44% 18%, rgba(255,255,255,0.7) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 67% 32%, rgba(255,255,255,0.6) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 83% 16%, rgba(255,255,255,0.75) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 91% 68%, rgba(255,255,255,0.55) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 74% 84%, rgba(255,255,255,0.7) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 17% 90%, rgba(255,255,255,0.5) 0 1px, transparent 1.5px);
+
+  animation: tgStars 8s linear infinite;
+}
+
+.tg-stars-delayed {
+  transform: scale(1.5);
+  opacity: 0.25;
+  animation-duration: 13s;
+}
+
+/* =========================================================
+   INTRO AMBIENT GLOW
+   ========================================================= */
+
+.tg-intro-glow {
+  position: absolute;
+  width: 45vw;
+  height: 45vw;
+  border-radius: 50%;
+
+  filter: blur(100px);
+  pointer-events: none;
+}
+
+.tg-intro-glow-one {
+  background: rgba(0, 140, 255, 0.08);
+  top: 10%;
+  left: 5%;
+}
+
+.tg-intro-glow-two {
+  background: rgba(255, 138, 0, 0.045);
+  bottom: -15%;
+  right: 5%;
+}
+
+/* =========================================================
+   EARTH SYSTEM
+   ========================================================= */
+
+.tg-earth-system {
+  position: relative;
+
+  width: min(600px, 75vw);
+  height: min(600px, 75vw);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transform: translateY(-3vh);
+}
+
+/* =========================================================
+   EARTH
+   ========================================================= */
+
+.tg-earth {
+  position: relative;
+
+  width: min(330px, 42vw);
+  height: min(330px, 42vw);
+
+  border-radius: 50%;
+  overflow: visible;
+
+  transform: perspective(800px) rotateX(8deg);
+
+  box-shadow:
+    0 0 25px rgba(38, 160, 255, 0.35),
+    0 0 70px rgba(0, 100, 255, 0.18),
+    inset -35px -20px 60px rgba(0, 0, 0, 0.75);
+
+  animation: tgEarthFloat 5s ease-in-out infinite;
+}
+
+/* Atmosphere */
+
+.tg-earth-atmosphere {
+  position: absolute;
+  inset: -12px;
+
+  border-radius: 50%;
+
+  border: 1px solid rgba(56, 189, 248, 0.45);
+
+  box-shadow:
+    0 0 20px rgba(56, 189, 248, 0.25),
+    inset 0 0 25px rgba(56, 189, 248, 0.12);
+
+  pointer-events: none;
+}
+
+/* Surface */
+
+.tg-earth-surface {
+  position: absolute;
+  inset: 0;
+
+  overflow: hidden;
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle at 35% 35%,
+      rgba(40, 120, 180, 0.95),
+      rgba(5, 32, 58, 0.95) 48%,
+      rgba(2, 10, 20, 1) 100%
+    );
+}
+
+/* Earth shadow */
+
+.tg-earth-surface::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent 30%,
+      rgba(0, 0, 0, 0.08) 50%,
+      rgba(0, 0, 0, 0.65) 100%
+    );
+}
+
+/* =========================================================
+   FAKE CONTINENTS
+   ========================================================= */
+
+.tg-earth-land {
+  position: absolute;
+
+  background: rgba(40, 150, 105, 0.7);
+
+  filter: blur(2px);
+  opacity: 0.75;
+}
+
+.tg-land-one {
+  width: 105px;
+  height: 70px;
+
+  top: 50px;
+  left: 55px;
+
+  border-radius: 62% 38% 50% 40%;
+  transform: rotate(-18deg);
+}
+
+.tg-land-two {
+  width: 90px;
+  height: 115px;
+
+  top: 120px;
+  left: 120px;
+
+  border-radius: 35% 65% 45% 55%;
+  transform: rotate(24deg);
+}
+
+.tg-land-three {
+  width: 70px;
+  height: 55px;
+
+  top: 190px;
+  left: 55px;
+
+  border-radius: 55% 45% 65% 35%;
+  transform: rotate(-35deg);
+}
+
+.tg-land-four {
+  width: 85px;
+  height: 50px;
+
+  top: 65px;
+  right: 25px;
+
+  border-radius: 40% 60% 55% 45%;
+  transform: rotate(20deg);
+}
+
+/* =========================================================
+   EARTH GRID
+   ========================================================= */
+
+.tg-latitude,
+.tg-longitude {
+  position: absolute;
+
+  border: 1px solid rgba(125, 211, 252, 0.13);
+
+  pointer-events: none;
+}
+
+.tg-latitude-one {
+  width: 100%;
+  height: 80px;
+
+  left: 0;
+  top: 125px;
+
+  border-radius: 50%;
+}
+
+.tg-latitude-two {
+  width: 90%;
+  height: 55px;
+
+  left: 5%;
+  top: 145px;
+
+  border-radius: 50%;
+}
+
+.tg-longitude-one {
+  width: 80px;
+  height: 100%;
+
+  left: 125px;
+  top: 0;
+
+  border-radius: 50%;
+}
+
+.tg-longitude-two {
+  width: 170px;
+  height: 100%;
+
+  left: 80px;
+  top: 0;
+
+  border-radius: 50%;
+}
+
+/* =========================================================
+   THERMAL HOTSPOTS
+   ========================================================= */
+
+.tg-hotspot {
+  position: absolute;
+
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  background: #FF8A00;
+
+  box-shadow:
+    0 0 8px #FF8A00,
+    0 0 18px rgba(255, 138, 0, 0.8);
+
+  z-index: 5;
+
+  animation:
+    tgHotspotPulse 1.6s ease-out infinite;
+}
+
+.tg-hotspot::after {
+  content: "";
+
+  position: absolute;
+  inset: -7px;
+
+  border: 1px solid rgba(255, 138, 0, 0.6);
+
+  border-radius: 50%;
+
+  animation:
+    tgHotspotRing 1.6s ease-out infinite;
+}
+
+.tg-hotspot-one {
+  top: 82px;
+  left: 112px;
+  animation-delay: 0.2s;
+}
+
+.tg-hotspot-two {
+  top: 145px;
+  left: 195px;
+  animation-delay: 0.55s;
+}
+
+.tg-hotspot-three {
+  top: 185px;
+  left: 105px;
+  animation-delay: 0.9s;
+}
+
+.tg-hotspot-four {
+  top: 110px;
+  left: 250px;
+  animation-delay: 1.15s;
+}
+
+.tg-hotspot-five {
+  top: 225px;
+  left: 190px;
+  animation-delay: 1.4s;
+}
+
+/* =========================================================
+   ORBIT
+   ========================================================= */
+
+.tg-orbit {
+  position: absolute;
+
+  width: min(510px, 67vw);
+  height: min(230px, 31vw);
+
+  border: 1px solid rgba(125, 211, 252, 0.22);
+
+  border-radius: 50%;
+
+  transform: rotate(-17deg);
+
+  box-shadow:
+    0 0 20px rgba(56, 189, 248, 0.06);
+
+  animation:
+    tgOrbit 4.2s linear infinite;
+
+  z-index: 10;
+}
+
+.tg-orbit::before {
+  content: "";
+
+  position: absolute;
+  inset: 12px;
+
+  border-radius: 50%;
+
+  border: 1px dashed rgba(255,255,255,0.05);
+}
+
+/* =========================================================
+   SATELLITE
+   ========================================================= */
+
+.tg-satellite-wrap {
+  position: absolute;
+
+  top: 50%;
+  right: -32px;
+
+  width: 95px;
+  height: 70px;
+
+  transform: translateY(-50%);
+}
+
+.tg-satellite {
+  width: 95px;
+  height: 60px;
+
+  filter:
+    drop-shadow(0 0 5px rgba(125, 211, 252, 0.75))
+    drop-shadow(0 0 15px rgba(56, 189, 248, 0.3));
+}
+
+/* =========================================================
+   SCAN BEAM
+   ========================================================= */
+
+.tg-scan-beam {
+  position: absolute;
+
+  width: 115px;
+  height: 180px;
+
+  left: -5px;
+  top: 48px;
+
+  transform-origin: top center;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(56, 189, 248, 0.28),
+      rgba(56, 189, 248, 0.08),
+      transparent
+    );
+
+  clip-path:
+    polygon(42% 0, 58% 0, 100% 100%, 0 100%);
+
+  filter: blur(2px);
+
+  opacity: 0;
+
+  animation:
+    tgScan 4.2s ease-in-out infinite;
+}
+
+/* =========================================================
+   INTRO TEXT
+   ========================================================= */
+
+.tg-intro-copy {
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: 13vh;
+
+  text-align: center;
+
+  pointer-events: none;
+
+  font-family: 'Space Mono', monospace;
+}
+
+.tg-message {
+  position: absolute;
+
+  left: 0;
+  right: 0;
+
+  font-size: clamp(11px, 1.1vw, 16px);
+
+  letter-spacing: 0.28em;
+
+  color: rgba(226, 232, 240, 0.82);
+
+  opacity: 0;
+
+  transform: translateY(10px);
+}
+
+.tg-message-one {
+  animation:
+    tgMessageOne 4.8s ease-out forwards;
+}
+
+.tg-message-two {
+  animation:
+    tgMessageTwo 4.8s ease-out forwards;
+}
+
+.tg-system {
+  opacity: 0;
+
+  animation:
+    tgSystem 4.8s ease-out forwards;
+}
+
+.tg-system-title {
+  font-family: 'DM Sans', sans-serif;
+
+  font-size: clamp(27px, 4vw, 56px);
+
+  font-weight: 800;
+
+  letter-spacing: 0.12em;
+
+  color: #F8FAFC;
+
+  text-shadow:
+    0 0 18px rgba(56, 189, 248, 0.35),
+    0 0 50px rgba(56, 189, 248, 0.15);
+}
+
+.tg-system-title span {
+  color: #38BDF8;
+}
+
+.tg-system-subtitle {
+  margin-top: 5px;
+
+  font-size: clamp(9px, 0.8vw, 12px);
+
+  letter-spacing: 0.35em;
+
+  color: rgba(148, 163, 184, 0.8);
+}
+
+.tg-system-status {
+  margin-top: 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  font-size: 9px;
+
+  letter-spacing: 0.2em;
+
+  color: rgba(148, 163, 184, 0.75);
+}
+
+.tg-status-second {
+  margin-top: 8px;
+}
+
+.tg-status-dot {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: #22C55E;
+
+  box-shadow:
+    0 0 10px rgba(34, 197, 94, 0.9);
+
+  animation:
+    tgStatusPulse 1s ease-in-out infinite;
+}
+
+/* =========================================================
+   SKIP BUTTON
+   ========================================================= */
+
+.tg-skip {
+  position: absolute;
+
+  right: 28px;
+  bottom: 26px;
+
+  z-index: 50;
+
+  border: 1px solid rgba(148, 163, 184, 0.2);
+
+  background: rgba(8, 12, 20, 0.65);
+
+  color: rgba(226, 232, 240, 0.65);
+
+  padding: 9px 14px;
+
+  border-radius: 999px;
+
+  font-family: 'Space Mono', monospace;
+
+  font-size: 9px;
+
+  letter-spacing: 0.15em;
+
+  cursor: pointer;
+
+  backdrop-filter: blur(12px);
+
+  transition: all 0.25s ease;
+}
+
+.tg-skip:hover {
+  color: #FFFFFF;
+
+  border-color: rgba(56, 189, 248, 0.55);
+
+  background: rgba(15, 23, 42, 0.85);
+
+  transform: translateY(-2px);
+}
+
+.tg-skip span {
+  margin-left: 5px;
+
+  transition:
+    transform 0.2s ease;
+}
+
+.tg-skip:hover span {
+  transform: translateX(3px);
+}
+
+/* =========================================================
+   TELEMETRY
+   ========================================================= */
+
+.tg-telemetry {
+  position: absolute;
+
+  left: 28px;
+  bottom: 28px;
+
+  display: flex;
+
+  gap: 10px;
+
+  align-items: center;
+
+  color: rgba(100, 116, 139, 0.5);
+
+  font-family: 'Space Mono', monospace;
+
+  font-size: 7px;
+
+  letter-spacing: 0.13em;
+}
+
+/* =========================================================
+   INTRO ANIMATIONS
+   ========================================================= */
+
+@keyframes tgIntroIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tgIntroExit {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.035);
+  }
+}
+
+@keyframes tgStars {
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes tgEarthFloat {
+  0%, 100% {
+    transform:
+      perspective(800px)
+      rotateX(8deg)
+      translateY(0);
+  }
+
+  50% {
+    transform:
+      perspective(800px)
+      rotateX(8deg)
+      translateY(-8px);
+  }
+}
+
+@keyframes tgOrbit {
+  from {
+    transform:
+      rotate(-17deg)
+      rotateZ(0deg);
+  }
+
+  to {
+    transform:
+      rotate(-17deg)
+      rotateZ(360deg);
+  }
+}
+
+@keyframes tgScan {
+  0%, 20% {
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 0.7;
+  }
+
+  48% {
+    opacity: 0.25;
+  }
+
+  62%, 100% {
+    opacity: 0;
+  }
+}
+
+@keyframes tgHotspotPulse {
+  0%, 100% {
+    transform: scale(0.75);
+    opacity: 0.7;
+  }
+
+  50% {
+    transform: scale(1.4);
+    opacity: 1;
+  }
+}
+
+@keyframes tgHotspotRing {
+  0% {
+    transform: scale(0.5);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+@keyframes tgMessageOne {
+  0%, 7% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  15%, 34% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  42%, 100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes tgMessageTwo {
+  0%, 30% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  38%, 56% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  64%, 100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes tgSystem {
+  0%, 52% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  62%, 84% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes tgStatusPulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 640px) {
+
+  .tg-earth-system {
+    width: 90vw;
+    height: 90vw;
+  }
+
+  .tg-orbit {
+    width: 90vw;
+    height: 42vw;
+  }
+
+  .tg-satellite-wrap {
+    right: -20px;
+
+    transform:
+      translateY(-50%)
+      scale(0.7);
+  }
+
+  .tg-earth {
+    width: 55vw;
+    height: 55vw;
+  }
+
+  .tg-intro-copy {
+    bottom: 17vh;
+    padding: 0 20px;
+  }
+
+  .tg-telemetry {
+    display: none;
+  }
+
+  .tg-skip {
+    right: 18px;
+    bottom: 18px;
+  }
+}
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .tg-intro *,
+  .tg-intro {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
