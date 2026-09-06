@@ -39,7 +39,7 @@ def generate_firms_hotspots(days=14, seed=42):
                 bright_ti4 = round(random.uniform(345.0, 375.0), 1)
                 bright_ti5 = round(random.uniform(310.0, 340.0), 1)
                 frp = round(random.uniform(45.0, 180.0), 1)
-            elif facility["type"] == "Mining/Quarry":
+            elif "Mining" in facility["type"] or facility["type"] == "Mining/Quarry":
                 bright_ti4 = round(random.uniform(315.0, 335.0), 1)
                 bright_ti5 = round(random.uniform(295.0, 310.0), 1)
                 frp = round(random.uniform(12.0, 40.0), 1)

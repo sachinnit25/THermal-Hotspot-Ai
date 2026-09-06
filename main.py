@@ -2,12 +2,15 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 import json
 import urllib.parse
 import os
+import mimetypes
 from config import Config
 from database import save_hotspots, get_all_hotspots
 from firms_api import fetch_live_firms_data
 from sample_data_generator import KNOWN_FACILITIES
 from classifier import ThermalAnomalyClassifier
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "dist")
 PORT = Config.PORT
 CLASSIFIER_ENGINE = ThermalAnomalyClassifier()
 RAW_DATA = fetch_live_firms_data()
@@ -26,6 +29,20 @@ class SatelliteAPIHandler(SimpleHTTPRequestHandler):
     def do_OPTIONS(self):
         self._set_headers(200)
 
+    def do_POST(self):
+        parsed = urllib.parse.urlparse(self.path)
+        path = parsed.path
+        if path in ["/api/sync-firms", "/api/refresh"]:
+            global RAW_DATA, PROCESSED_DATA
+            RAW_DATA = fetch_live_firms_data()
+            PROCESSED_DATA = CLASSIFIER_ENGINE.process_records(RAW_DATA)
+            save_hotspots(PROCESSED_DATA)
+            self._set_headers(200)
+            self.wfile.write(json.dumps({"status": "success", "count": len(PROCESSED_DATA), "live_mode": Config.is_firms_live()}).encode('utf-8'))
+        else:
+            self._set_headers(404)
+            self.wfile.write(json.dumps({"error": "Not Found"}).encode('utf-8'))
+
     def do_GET(self):
         global RAW_DATA, PROCESSED_DATA
         parsed = urllib.parse.urlparse(self.path)
@@ -39,7 +56,17 @@ class SatelliteAPIHandler(SimpleHTTPRequestHandler):
                 "system": "ThermalGuard AI Satellite Classification Engine",
                 "version": "2.0.0",
                 "firms_live_mode": Config.is_firms_live(),
-                "endpoints": ["/api/hotspots", "/api/stats", "/api/facilities", "/api/config", "/api/refresh", "/api/sync-firms"]
+                "endpoints": [
+                    "/api/status",
+                    "/api/config",
+                    "/api/hotspots",
+                    "/api/stats",
+                    "/api/alerts",
+                    "/api/national-risk",
+                    "/api/facilities",
+                    "/api/refresh",
+                    "/api/sync-firms"
+                ]
             }
             self.wfile.write(json.dumps(res).encode('utf-8'))
 
@@ -47,7 +74,7 @@ class SatelliteAPIHandler(SimpleHTTPRequestHandler):
             self._set_headers(200)
             self.wfile.write(json.dumps(Config.get_status()).encode('utf-8'))
 
-        elif path == "/api/sync-firms" or path == "/api/refresh":
+        elif path in ["/api/sync-firms", "/api/refresh"]:
             RAW_DATA = fetch_live_firms_data()
             PROCESSED_DATA = CLASSIFIER_ENGINE.process_records(RAW_DATA)
             save_hotspots(PROCESSED_DATA)
@@ -89,7 +116,7 @@ class SatelliteAPIHandler(SimpleHTTPRequestHandler):
 
         elif path.startswith("/api/hotspots/"):
             hotspot_id = path.replace("/api/hotspots/", "")
-            match = next((h for h in PROCESSED_DATA if str(h.get("id")) == hotspot_id or str(h.get("latitude")) == hotspot_id), None)
+            match = next((h for h in PROCESSED_DATA if str(h.get("id")) == hotspot_id or str(h.get("latitude")) == hotspot_id or str(h.get("hotspot_id")) == hotspot_id), None)
             if match:
                 self._set_headers(200)
                 self.wfile.write(json.dumps(match).encode('utf-8'))
@@ -148,16 +175,55 @@ class SatelliteAPIHandler(SimpleHTTPRequestHandler):
             self.wfile.write(json.dumps({"count": len(KNOWN_FACILITIES), "facilities": KNOWN_FACILITIES}).encode('utf-8'))
 
         else:
-            # Serve index.html or static files
-            if path == "/" or path == "/index.html":
-                filepath = os.path.join(os.path.dirname(__file__), "index.html")
-                if os.path.exists(filepath):
-                    self._set_headers(200, "text/html")
-                    with open(filepath, "rb") as f:
-                        self.wfile.write(f.read())
-                    return
-            # Fallback to SimpleHTTPRequestHandler for static assets
-            super().do_GET()
+            # Static files from dist/ (Vite build output)
+            if not os.path.exists(STATIC_DIR):
+                self._set_headers(200, "text/html")
+                html = """<!DOCTYPE html><html><body style="font-family:sans-serif;background:#050816;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;"><div style="text-align:center;max-width:520px;padding:2rem;background:#0f172a;border-radius:12px;border:1px solid #1e293b;"><h2>Frontend Build Required</h2><p>The dashboard has not been built yet. Run the following commands in your terminal:</p><pre style="background:#020617;padding:12px;border-radius:8px;text-align:left;color:#38bdf8;">npm install\nnpm run build</pre><p>Then restart this server.</p></div></body></html>"""
+                self.wfile.write(html.encode('utf-8'))
+                return
+
+            req_subpath = path.lstrip("/")
+            target_path = os.path.join(STATIC_DIR, req_subpath)
+
+            if not req_subpath or os.path.isdir(target_path):
+                target_path = os.path.join(STATIC_DIR, "index.html")
+
+            # Fallback for SPA routing
+            if not os.path.exists(target_path):
+                target_path = os.path.join(STATIC_DIR, "index.html")
+
+            # Prevent directory traversal
+            if not os.path.abspath(target_path).startswith(STATIC_DIR):
+                self._set_headers(403, "text/plain")
+                self.wfile.write(b"Forbidden")
+                return
+
+            # Determine content type explicitly
+            if target_path.endswith(".js") or target_path.endswith(".mjs"):
+                ctype = "application/javascript"
+            elif target_path.endswith(".css"):
+                ctype = "text/css"
+            elif target_path.endswith(".html"):
+                ctype = "text/html"
+            elif target_path.endswith(".svg"):
+                ctype = "image/svg+xml"
+            elif target_path.endswith(".json"):
+                ctype = "application/json"
+            elif target_path.endswith(".png"):
+                ctype = "image/png"
+            elif target_path.endswith(".ico"):
+                ctype = "image/x-icon"
+            else:
+                ctype = mimetypes.guess_type(target_path)[0] or "application/octet-stream"
+
+            try:
+                with open(target_path, "rb") as f:
+                    data = f.read()
+                self._set_headers(200, ctype)
+                self.wfile.write(data)
+            except Exception as e:
+                self._set_headers(500, "text/plain")
+                self.wfile.write(f"Error reading static file: {e}".encode('utf-8'))
 
 def run_server():
     server_address = ('', PORT)

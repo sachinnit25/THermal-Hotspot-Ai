@@ -1,1 +1,0 @@
-# THermal-Hotspot-Ai

@@ -19,23 +19,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": [
-    "src/App.tsx",
-    "src/main.tsx",
-    "src/components/**/*.tsx",
-    "src/components/**/*.ts",
-    "src/services/**/*.tsx",
-    "src/services/**/*.ts",
-    "src/types/**/*.tsx",
-    "src/types/**/*.ts"
-  ],
-  "exclude": [
-    "src/DashboardLayout.tsx",
-    "src/Home.new.tsx",
-    "src/db.ts",
-    "src/routers.ts",
-    "src/schema.ts",
-    "src/firms.api.test.ts",
-    "src/hotspots.test.ts"
-  ]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }

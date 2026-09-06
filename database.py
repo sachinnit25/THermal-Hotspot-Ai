@@ -2,7 +2,7 @@ import sqlite3
 import json
 import os
 
-DB_FILE = "thermalguard.db"
+DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "thermalguard.db")
 
 def init_db():
     conn = sqlite3.connect(DB_FILE)
