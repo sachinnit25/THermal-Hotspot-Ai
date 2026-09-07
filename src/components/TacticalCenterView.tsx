@@ -7,6 +7,8 @@ import {
   ZoomIn,
   ZoomOut,
   Target,
+  Crosshair,
+  Radio,
 } from 'lucide-react';
 import { Hotspot, HotspotClass } from '../types/hotspot';
 
@@ -82,7 +84,7 @@ export const TacticalCenterView: React.FC<TacticalCenterViewProps> = ({
       minZoom: 2,
       maxZoom: 18,
       zoomControl: false,
-      attributionControl: true, // FIX: keep tile-provider attribution, styled minimally below
+      attributionControl: false,
     });
 
     mapInstanceRef.current = map;
@@ -231,29 +233,61 @@ export const TacticalCenterView: React.FC<TacticalCenterViewProps> = ({
       : 'none';
 
   return (
-    <div className="virevo-card relative flex flex-col overflow-hidden border border-[#1B2935] shadow-[0_20px_60px_rgba(0,0,0,0.85)] min-h-[480px] sm:min-h-[540px] w-full">
-      {/* TOP HUD */}
-      <div className="absolute top-3.5 left-4 right-4 z-[1000] flex flex-wrap items-center justify-between gap-2 pointer-events-none">
-        <div className="pointer-events-auto flex items-center gap-2.5 rounded-full border border-[#1B2935] bg-[#05080D]/90 px-4 py-1.5 backdrop-blur-xl shadow-lg">
-          <span className="flex h-2 w-2 rounded-full bg-[#38BDF8] animate-ping" />
-          <span className="font-mono text-[10px] uppercase font-extrabold tracking-wider text-white">
-            DRONE CAM · GIS SATELLITE
-          </span>
-          <span className="text-slate-600">|</span>
-          <span className="font-mono text-[10px] text-slate-300">
-            {currentHotspot
-              ? `${currentHotspot.latitude.toFixed(4)}°, ${currentHotspot.longitude.toFixed(4)}°`
-              : 'IDLE PATROL'}
-          </span>
+    <div className="virevo-card relative flex flex-col overflow-hidden border border-[#1B2935] shadow-[0_20px_60px_rgba(0,0,0,0.85)] min-h-[520px] sm:min-h-[560px] w-full">
+      {/* ========================================================
+       * TOP HUD OVERLAY - 2-TIER NON-COLLIDING STRUCTURE
+       * ======================================================== */}
+      <div className="absolute top-3 left-3 right-3 z-[1000] flex flex-col gap-2 pointer-events-none">
+        {/* Tier 1: System Status on Left & Layer Switcher on Right */}
+        <div className="flex items-center justify-between gap-2">
+          {/* Left: Live Drone Cam & Coordinates */}
+          <div className="pointer-events-auto flex items-center gap-2 rounded-full border border-[#1B2935] bg-[#05080D]/90 px-3 py-1.5 backdrop-blur-xl shadow-lg">
+            <span className="flex h-2 w-2 rounded-full bg-[#38BDF8] animate-ping shrink-0" />
+            <span className="font-mono text-[10px] uppercase font-extrabold tracking-wider text-white whitespace-nowrap">
+              DRONE CAM · GIS
+            </span>
+            <span className="text-slate-700">|</span>
+            <span className="font-mono text-[10px] text-cyan-300 font-semibold whitespace-nowrap">
+              {currentHotspot
+                ? `${currentHotspot.latitude.toFixed(4)}°, ${currentHotspot.longitude.toFixed(4)}°`
+                : 'IDLE PATROL'}
+            </span>
+          </div>
+
+          {/* Right: Map Layer Switcher */}
+          <div className="pointer-events-auto flex items-center gap-1 rounded-full border border-[#1B2935] bg-[#05080D]/90 p-1 backdrop-blur-xl shadow-lg shrink-0">
+            <button
+              onClick={() => setActiveTile('satellite')}
+              className={`rounded-full px-3 py-1 text-[10px] font-mono font-bold transition-all ${
+                activeTile === 'satellite'
+                  ? 'bg-[#38BDF8] text-[#05080D] shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Satellite
+            </button>
+            <button
+              onClick={() => setActiveTile('dark')}
+              className={`rounded-full px-3 py-1 text-[10px] font-mono font-bold transition-all ${
+                activeTile === 'dark'
+                  ? 'bg-[#38BDF8] text-[#05080D] shadow-sm'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Dark HUD
+            </button>
+          </div>
         </div>
 
-        <div className="pointer-events-auto flex items-center gap-1.5 rounded-full border border-[#1B2935] bg-[#05080D]/90 p-1 backdrop-blur-xl">
-          <div className="flex items-center gap-1 px-2.5 py-0.5 text-xs">
-            <Compass size={12} className="text-[#38BDF8]" />
+        {/* Tier 2: Region Preset Selector on Left & Anomaly Alert on Right */}
+        <div className="flex items-center justify-between gap-2">
+          {/* Region Dropdown */}
+          <div className="pointer-events-auto flex items-center gap-1.5 rounded-full border border-[#1B2935] bg-[#05080D]/90 px-2.5 py-1 backdrop-blur-xl shadow-md">
+            <Compass size={12} className="text-[#38BDF8] shrink-0" />
             <select
               value={selectedRegion}
               onChange={handleRegionChange}
-              className="bg-transparent text-[10px] font-mono font-semibold text-slate-200 outline-none cursor-pointer"
+              className="bg-transparent text-[10px] font-mono font-semibold text-slate-200 outline-none cursor-pointer max-w-[170px] sm:max-w-[230px] truncate"
             >
               {REGION_PRESETS.map((region) => (
                 <option key={region.name} value={region.name} className="bg-[#0B1118] text-white">
@@ -263,128 +297,147 @@ export const TacticalCenterView: React.FC<TacticalCenterViewProps> = ({
             </select>
           </div>
 
-          <div className="flex items-center gap-0.5 bg-[#05080D]/80 rounded-full p-0.5 border border-[#1B2935]">
-            <button
-              onClick={() => setActiveTile('satellite')}
-              className={`rounded-full px-3 py-0.5 text-[10px] font-mono font-bold transition-all ${
-                activeTile === 'satellite' ? 'bg-[#38BDF8] text-[#05080D]' : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              Satellite
-            </button>
-            <button
-              onClick={() => setActiveTile('dark')}
-              className={`rounded-full px-3 py-0.5 text-[10px] font-mono font-bold transition-all ${
-                activeTile === 'dark' ? 'bg-[#38BDF8] text-[#05080D]' : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              Dark HUD
-            </button>
-          </div>
+          {/* Active Anomaly / Flame Status Badge */}
+          {currentHotspot ? (
+            <div className="pointer-events-auto flex items-center gap-2 rounded-full border border-[#FF3B30]/40 bg-[#05080D]/95 px-3 py-1 text-white shadow-[0_0_20px_rgba(255,59,48,0.25)] backdrop-blur-xl shrink-0">
+              <span className="flex h-2 w-2 rounded-full bg-[#FF3B30] animate-ping shrink-0" />
+              <span className="text-[10px] uppercase font-bold font-mono text-[#FF6B63] whitespace-nowrap">
+                Flame: {currentHotspot.frpMW?.toFixed(1) ?? '64.2'} MW
+              </span>
+            </div>
+          ) : (
+            <div className="pointer-events-auto flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-[#05080D]/95 px-3 py-1 text-white backdrop-blur-xl shrink-0">
+              <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0" />
+              <span className="text-[10px] uppercase font-bold font-mono text-emerald-300 whitespace-nowrap">
+                Scanning Clear
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* GIS MAP */}
-      <div className="relative w-full h-[480px] sm:h-[540px] overflow-hidden bg-[#05080D]">
+      {/* ========================================================
+       * MAP CANVAS
+       * ======================================================== */}
+      <div className="relative w-full h-[520px] sm:h-[560px] overflow-hidden bg-[#05080D]">
         <div
           ref={mapContainerRef}
           className="absolute inset-0"
           style={{ filter: thermalFilterStyle }}
         />
 
+        {/* Laser Scan Tactical Cone */}
         {laserScan && (
           <div className="pointer-events-none absolute inset-0 z-[500] flex items-center justify-center">
             <div
-              className="absolute top-1/6 w-0 h-0 border-l-[160px] border-r-[160px] border-b-[300px] border-l-transparent border-r-transparent border-b-[#38BDF8]/10 filter blur-sm opacity-70 animate-pulse"
+              className="absolute top-1/6 w-0 h-0 border-l-[140px] border-r-[140px] border-b-[260px] border-l-transparent border-r-transparent border-b-[#38BDF8]/10 filter blur-sm opacity-60 animate-pulse"
               style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}
             />
-            <div className="absolute top-1/6 w-0 h-0 border-l-[110px] border-r-[110px] border-b-[240px] border-l-transparent border-r-transparent border-b-[#38BDF8]/20 opacity-80 animate-laser-scan" />
+            <div className="absolute top-1/6 w-0 h-0 border-l-[90px] border-r-[90px] border-b-[200px] border-l-transparent border-r-transparent border-b-[#38BDF8]/15 opacity-70 animate-laser-scan" />
           </div>
         )}
 
+        {/* Tactical Crosshair / HUD Overlay */}
         {hudOverlay && (
           <div className="pointer-events-none absolute inset-0 z-[600] flex items-center justify-center">
             <div className="relative flex items-center justify-center">
-              <div className="h-44 w-44 rounded-full border border-white/20 border-dashed animate-spin-slow opacity-60" />
-              <div className="absolute h-32 w-32 rounded-full border border-[#38BDF8]/40 opacity-70" />
-              <div className="absolute h-24 w-24 border-t-2 border-l-2 border-[#38BDF8] -top-2 -left-2" />
-              <div className="absolute h-24 w-24 border-t-2 border-r-2 border-[#38BDF8] -top-2 -right-2" />
-              <div className="absolute h-24 w-24 border-b-2 border-l-2 border-[#FF8A00] -bottom-2 -left-2" />
-              <div className="absolute h-24 w-24 border-b-2 border-r-2 border-[#FF8A00] -bottom-2 -right-2" />
-              <div className="absolute h-4 w-4 rounded-full border-2 border-[#38BDF8] shadow-[0_0_12px_#38BDF8] flex items-center justify-center">
+              <div className="h-36 w-36 rounded-full border border-white/15 border-dashed animate-spin-slow opacity-50" />
+              <div className="absolute h-24 w-24 rounded-full border border-[#38BDF8]/30 opacity-60" />
+              <div className="absolute h-16 w-16 border-t border-l border-[#38BDF8] -top-2 -left-2 opacity-80" />
+              <div className="absolute h-16 w-16 border-t border-r border-[#38BDF8] -top-2 -right-2 opacity-80" />
+              <div className="absolute h-16 w-16 border-b border-l border-[#FF8A00] -bottom-2 -left-2 opacity-80" />
+              <div className="absolute h-16 w-16 border-b border-r border-[#FF8A00] -bottom-2 -right-2 opacity-80" />
+              <div className="absolute h-3 w-3 rounded-full border border-[#38BDF8] shadow-[0_0_10px_#38BDF8] flex items-center justify-center">
                 <div className="h-1 w-1 rounded-full bg-white" />
               </div>
             </div>
           </div>
         )}
 
-        <div className="pointer-events-auto absolute top-20 right-6 z-[900] flex items-center gap-2 rounded-2xl border border-[#1B2935] bg-[#05080D]/95 px-4 py-2 text-white shadow-[0_0_30px_rgba(255,59,48,0.25)] backdrop-blur-xl">
-          <span className="flex h-2.5 w-2.5 rounded-full bg-[#FF3B30] animate-ping" />
-          <div className="text-left">
-            <span className="text-[10px] uppercase font-black font-mono tracking-wider block leading-none text-[#FF6B63]">
-              Active Flame Detected
-            </span>
-            <span className="text-[9px] text-slate-300 font-mono">
-              FRP: {currentHotspot?.frpMW?.toFixed(1) ?? '64.2'} MW
-              {' · '}
-              {currentHotspot?.locationName ?? 'Target Sector'}
-            </span>
-          </div>
-        </div>
-
-        <div className="pointer-events-auto absolute bottom-16 right-6 z-[900] flex items-center gap-2 rounded-2xl border border-[#1B2935] bg-[#05080D]/95 px-3.5 py-1.5 text-white backdrop-blur-xl shadow-lg">
-          <Flame size={13} className="text-[#FF8A00] animate-pulse" />
-          <span className="text-[10px] uppercase font-bold font-mono">
-            Radiance: {currentHotspot?.brightnessK?.toFixed(1) ?? '368.4'}
-            {' K · '}
-            {currentHotspot?.country ?? 'Surveillance Grid'}
-          </span>
-        </div>
-
-        <div className="pointer-events-auto absolute bottom-16 left-6 z-[900] flex flex-col gap-1.5">
+        {/* Left-Hand Vertical Tool Dock */}
+        <div className="pointer-events-auto absolute top-1/2 -translate-y-1/2 left-3 z-[900] flex flex-col gap-1 p-1 rounded-2xl border border-[#1B2935] bg-[#05080D]/90 backdrop-blur-xl shadow-xl">
           <button
             onClick={handleRecenterTarget}
-            className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#1B2935] bg-[#05080D]/95 text-[#38BDF8] hover:bg-[#38BDF8] hover:text-[#05080D] transition-all shadow-md"
+            className="flex h-7 w-7 items-center justify-center rounded-xl text-[#38BDF8] hover:bg-[#38BDF8]/20 transition-all"
             title="Recenter on active target"
           >
-            <Target size={15} />
+            <Target size={14} />
           </button>
+          <div className="h-px w-4 bg-[#1B2935] mx-auto my-0.5" />
           <button
             onClick={() => mapInstanceRef.current?.zoomIn()}
-            className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#1B2935] bg-[#05080D]/95 text-slate-300 hover:border-[#38BDF8]/50 hover:text-[#38BDF8] transition-all shadow-md"
+            className="flex h-7 w-7 items-center justify-center rounded-xl text-slate-300 hover:text-[#38BDF8] hover:bg-[#38BDF8]/10 transition-all"
             title="Zoom in"
           >
-            <ZoomIn size={15} />
+            <ZoomIn size={14} />
           </button>
           <button
             onClick={() => mapInstanceRef.current?.zoomOut()}
-            className="flex h-8 w-8 items-center justify-center rounded-xl border border-[#1B2935] bg-[#05080D]/95 text-slate-300 hover:border-[#38BDF8]/50 hover:text-[#38BDF8] transition-all shadow-md"
+            className="flex h-7 w-7 items-center justify-center rounded-xl text-slate-300 hover:text-[#38BDF8] hover:bg-[#38BDF8]/10 transition-all"
             title="Zoom out"
           >
-            <ZoomOut size={15} />
+            <ZoomOut size={14} />
+          </button>
+          <div className="h-px w-4 bg-[#1B2935] mx-auto my-0.5" />
+          <button
+            onClick={() => setHudOverlay((prev) => !prev)}
+            className={`flex h-7 w-7 items-center justify-center rounded-xl transition-all ${
+              hudOverlay ? 'text-[#38BDF8] bg-[#38BDF8]/20' : 'text-slate-500 hover:text-slate-300'
+            }`}
+            title={hudOverlay ? 'Hide HUD Reticle' : 'Show HUD Reticle'}
+          >
+            <Crosshair size={14} />
+          </button>
+          <button
+            onClick={() => setLaserScan((prev) => !prev)}
+            className={`flex h-7 w-7 items-center justify-center rounded-xl transition-all ${
+              laserScan ? 'text-[#38BDF8] bg-[#38BDF8]/20' : 'text-slate-500 hover:text-slate-300'
+            }`}
+            title={laserScan ? 'Disable Laser Scan' : 'Enable Laser Scan'}
+          >
+            <Radio size={14} />
           </button>
         </div>
 
-        <div className="pointer-events-auto absolute bottom-3.5 left-4 right-4 z-[900] flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-[#1B2935] bg-[#05080D]/95 px-4 py-2 font-mono text-[10px] text-slate-300 backdrop-blur-xl shadow-xl">
-          <div className="flex items-center gap-3">
-            <span className="text-[#FF3B30] font-bold flex items-center gap-1">
+        {/* Radiance & Sector Info Badge - Positioned safely above bottom bar */}
+        <div className="pointer-events-auto absolute bottom-14 right-3 z-[900] flex items-center gap-1.5 rounded-full border border-[#1B2935] bg-[#05080D]/90 px-3 py-1 text-white backdrop-blur-xl shadow-lg">
+          <Flame size={12} className="text-[#FF8A00] animate-pulse shrink-0" />
+          <span className="text-[10px] uppercase font-bold font-mono text-slate-200">
+            Radiance: <span className="text-[#FF8A00]">{currentHotspot?.brightnessK?.toFixed(1) ?? '368.4'} K</span>
+            {' · '}
+            <span className="text-slate-400">
+              {currentHotspot?.locationName
+                ? currentHotspot.locationName.length > 22
+                  ? currentHotspot.locationName.slice(0, 22) + '...'
+                  : currentHotspot.locationName
+                : currentHotspot?.country ?? 'Surveillance Grid'}
+            </span>
+          </span>
+        </div>
+
+        {/* Bottom Telemetry & Thermal Palette Bar */}
+        <div className="pointer-events-auto absolute bottom-2.5 left-3 right-3 z-[900] flex items-center justify-between gap-2 rounded-2xl border border-[#1B2935] bg-[#05080D]/95 px-3 py-1.5 font-mono text-[10px] text-slate-300 backdrop-blur-xl shadow-xl overflow-x-auto scrollbar-none">
+          {/* Left: Sensor Telemetry Details */}
+          <div className="flex items-center gap-2.5 shrink-0">
+            <span className="text-[#FF3B30] font-bold flex items-center gap-1 whitespace-nowrap">
               <span className="h-1.5 w-1.5 rounded-full bg-[#FF3B30] animate-ping" />
               REC [4K IR]
             </span>
-            <span className="text-slate-600">|</span>
-            <span>ALT: 120M</span>
-            <span className="text-slate-600">|</span>
-            <span>ZOOM: 3.5X OPTICAL</span>
-            <span className="text-slate-600">|</span>
-            <span>GIMBAL: -45° PITCH</span>
+            <span className="text-slate-700">|</span>
+            <span className="whitespace-nowrap text-slate-400">ALT: <span className="text-slate-200">120M</span></span>
+            <span className="text-slate-700 hidden sm:inline">|</span>
+            <span className="whitespace-nowrap text-slate-400 hidden sm:inline">ZOOM: <span className="text-slate-200">3.5X</span></span>
+            <span className="text-slate-700 hidden md:inline">|</span>
+            <span className="whitespace-nowrap text-slate-400 hidden md:inline">PITCH: <span className="text-slate-200">-45°</span></span>
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <span className="text-slate-400 text-[9px] uppercase">IR Palette:</span>
-            <div className="flex items-center gap-1 bg-[#05080D]/80 rounded-full p-0.5 border border-[#1B2935]">
+          {/* Right: Thermal Palette Switcher */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className="text-slate-400 text-[9px] uppercase hidden sm:inline">Palette:</span>
+            <div className="flex items-center gap-0.5 bg-[#05080D]/80 rounded-full p-0.5 border border-[#1B2935]">
               <button
                 onClick={() => setThermalPalette('inferno')}
-                className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold transition-all ${
+                className={`px-2 py-0.5 rounded-full text-[9px] font-bold transition-all ${
                   thermalPalette === 'inferno' ? 'bg-[#FF8A00] text-[#05080D]' : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -392,7 +445,7 @@ export const TacticalCenterView: React.FC<TacticalCenterViewProps> = ({
               </button>
               <button
                 onClick={() => setThermalPalette('ironbow')}
-                className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold transition-all ${
+                className={`px-2 py-0.5 rounded-full text-[9px] font-bold transition-all ${
                   thermalPalette === 'ironbow' ? 'bg-[#FF8A00] text-[#05080D]' : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -400,7 +453,7 @@ export const TacticalCenterView: React.FC<TacticalCenterViewProps> = ({
               </button>
               <button
                 onClick={() => setThermalPalette('whitehot')}
-                className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold transition-all ${
+                className={`px-2 py-0.5 rounded-full text-[9px] font-bold transition-all ${
                   thermalPalette === 'whitehot' ? 'bg-[#E5E7EB] text-[#05080D]' : 'text-slate-400 hover:text-white'
                 }`}
               >
@@ -408,7 +461,7 @@ export const TacticalCenterView: React.FC<TacticalCenterViewProps> = ({
               </button>
               <button
                 onClick={() => setThermalPalette('normal')}
-                className={`px-2.5 py-0.5 rounded-full text-[9px] font-bold transition-all ${
+                className={`px-2 py-0.5 rounded-full text-[9px] font-bold transition-all ${
                   thermalPalette === 'normal' ? 'bg-[#38BDF8] text-[#05080D]' : 'text-slate-400 hover:text-white'
                 }`}
               >
