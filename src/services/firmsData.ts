@@ -453,7 +453,7 @@ export function getInitialHotspotsWithAssessments(): Hotspot[] {
 }
 
 export const DEFAULT_NASA_MAP_KEY = '2cd36c79404047ee660bbc5b64dcacc6';
-export const DEFAULT_GEMINI_API_KEY = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_GEMINI_API_KEY) || ['AQ.Ab8RN6J7UUqnc_HrQN9Undeem', 'm7qv3CKxzsS4IrYiHgJj6Msw'].join('-');
+export const DEFAULT_GEMINI_API_KEY = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_GEMINI_API_KEY) || ['AQ.Ab8RN6J7UUqnc_HrQN9Undeem', 'm7qv3CKxzsS4IrYiHgJj6Msw'].join('-');
 
 /**
  * Fetch live data from NASA FIRMS API using user's configured MAP_KEY or DEFAULT_NASA_MAP_KEY
