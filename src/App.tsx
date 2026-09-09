@@ -11,6 +11,7 @@ import { AlertRulesModal } from './components/AlertRulesModal';
 import { ApiKeyModal } from './components/ApiKeyModal';
 import { CsvImportModal } from './components/CsvImportModal';
 import { ComponentHotspotInspector } from './components/ComponentHotspotInspector';
+import { Interactive3DSatelliteMap } from './components/Interactive3DSatelliteMap';
 import { MainScreenEmergencyBanner } from './components/MainScreenEmergencyBanner';
 import { IntroAnimation } from './components/IntroAnimation';
 import {
@@ -54,7 +55,7 @@ export default function App() {
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
 
   // Active Nav Pill
-  const [activePill, setActivePill] = useState<'area' | 'map' | 'routes' | 'weather' | 'analytics' | 'firms' | 'components'>('area');
+  const [activePill, setActivePill] = useState<'area' | 'map' | '3dmap' | 'routes' | 'weather' | 'analytics' | 'firms' | 'components'>('area');
 
   // Modals & Workbench Drawer
   const [isWorkbenchOpen, setIsWorkbenchOpen] = useState<boolean>(false);
@@ -515,6 +516,9 @@ export default function App() {
                       }
                     />
 
+                    {/* 🌡️ 3D Satellite & Subsystem Interactive Thermal Map */}
+                    <Interactive3DSatelliteMap />
+
                     {/* Bottom Fleet Row */}
                     <CommandAndFleetRow
                       selectedHotspot={
@@ -722,6 +726,14 @@ export default function App() {
             {/* VIEW 4B: Component & Hardware Hotspots AI */}
             {activePill === 'components' && (
               <ComponentHotspotInspector />
+            )}
+
+            {/* VIEW 4C: Dedicated 3D Satellite Map */}
+            {activePill === '3dmap' && (
+              <div className="space-y-6">
+                <Interactive3DSatelliteMap />
+                <ComponentHotspotInspector />
+              </div>
             )}
 
             {/* VIEW 5: NASA FIRMS Full Explorer */}

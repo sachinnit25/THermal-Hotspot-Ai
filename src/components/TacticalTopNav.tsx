@@ -10,8 +10,8 @@ import {
 } from 'lucide-react';
 
 interface TacticalTopNavProps {
-  activePill: 'area' | 'map' | 'routes' | 'weather' | 'analytics' | 'firms' | 'components';
-  onSelectPill: (pill: 'area' | 'map' | 'routes' | 'weather' | 'analytics' | 'firms' | 'components') => void;
+  activePill: 'area' | 'map' | '3dmap' | 'routes' | 'weather' | 'analytics' | 'firms' | 'components';
+  onSelectPill: (pill: 'area' | 'map' | '3dmap' | 'routes' | 'weather' | 'analytics' | 'firms' | 'components') => void;
   activeAlertCount: number;
   onOpenAlerts: () => void;
   onOpenApiKeys: () => void;
@@ -80,6 +80,17 @@ export const TacticalTopNav: React.FC<TacticalTopNavProps> = ({
           }`}
         >
           Map
+        </button>
+
+        <button
+          onClick={() => onSelectPill('3dmap')}
+          className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all flex items-center gap-1 ${
+            activePill === '3dmap'
+              ? 'bg-cyan-400 text-slate-950 font-extrabold shadow-[0_0_12px_rgba(56,189,248,0.4)]'
+              : 'text-cyan-300 hover:bg-cyan-400/10'
+          }`}
+        >
+          🛰️ 3D Satellite
         </button>
 
         <button
