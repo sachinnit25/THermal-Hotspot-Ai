@@ -198,9 +198,9 @@ export const CommandAndFleetRow: React.FC<CommandAndFleetRowProps> = ({
                     Team Leader
                   </p>
 
-                  <p className="text-xs font-bold text-white truncate">
-                    Cpt. Hugo Das
-                  </p>
+                  <h4 className="text-xs font-bold text-white truncate">
+                    Swastika Chatterjee
+                  </h4>
                 </div>
 
                 {/* Aerospace Voice Waveform */}
