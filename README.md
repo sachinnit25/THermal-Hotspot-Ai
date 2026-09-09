@@ -1,134 +1,248 @@
-# Thermal Hotspot AI - Orbital Intelligence Dashboard
+# 🔥 Thermal Hotspot AI — Orbital Intelligence Dashboard
 
-A full-stack satellite thermal anomaly intelligence system that processes FIRMS data (VIIRS/MODIS format), calculates spatial persistence, evaluates proximity to known industrial facilities, and classifies thermal signatures (Industrial Fire, Gas Flare, Wildfire, Agricultural Burning, Mining Thermal Activity).
+<p align="center">
+  <img src="docs/thermal_dashboard_mockup.jpg" alt="Thermal Hotspot AI Dashboard" width="100%" style="border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+</p>
 
-The project combines a **Python Intelligence & Analytics Engine** with an interactive **React + TypeScript + Tailwind GIS Dashboard**.
+<p align="center">
+  <b>A Full-Stack Satellite Thermal Anomaly & Wildfire Intelligence System</b><br>
+  Powered by NASA FIRMS (VIIRS/MODIS), Spatial Persistence Algorithms, Infrastructure Proximity Mapping, and Multi-Class AI Anomaly Classification.
+</p>
 
-## Key Features
-
-- **Thermal Anomaly Classifier Engine**: High-resolution classification using Haversine distance, temporal persistence counting, brightness temperature differential (TI4/TI5), and Fire Radiative Power (FRP).
-- **Satellite Data Stream Simulator & NASA FIRMS Sync**: Generates realistic FIRMS satellite passes across key industrial clusters or connects directly to live NASA FIRMS feeds.
-- **Cosmic Web Dashboard**: Responsive midnight-blue tactical dashboard with interactive Leaflet GIS maps, live telemetry metrics, signal queues, category filtering, search, and AI classification reasoning chains.
-- **Full-Stack REST API**: Endpoints for hotspots, telemetry stats, infrastructure facilities, risk analysis, and real-time refresh.
-- **Production & Serverless Ready**: Native support for running locally via Python HTTP server or deploying to Vercel with zero configuration.
+<p align="center">
+  <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.8%2B-blue.svg?style=for-the-badge&logo=python&logoColor=white" alt="Python Version"></a>
+  <a href="https://reactjs.org"><img src="https://img.shields.io/badge/React-18.0%2B-61DAFB.svg?style=for-the-badge&logo=react&logoColor=black" alt="React"></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.0%2B-3178C6.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"></a>
+  <a href="https://tailwindcss.com"><img src="https://img.shields.io/badge/Tailwind_CSS-3.0%2B-38B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS"></a>
+  <a href="https://vercel.com"><img src="https://img.shields.io/badge/Vercel-Deployed-000000.svg?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge" alt="License"></a>
+</p>
 
 ---
 
-## Quickstart & How to Run
+## ⚡ Core Capabilities & Highlights
 
-### Prerequisites
-- **Python 3.8+**
-- **Node.js 18+** & **npm**
+<table width="100%">
+  <tr>
+    <td width="50%" valign="top">
+      <h3>🛰️ Orbital Intelligence & NASA FIRMS Sync</h3>
+      <ul>
+        <li><b>Live Satellite Stream</b>: Direct integration with NASA FIRMS (VIIRS NRT & MODIS) thermal detection satellite feeds.</li>
+        <li><b>High-Fidelity Simulator</b>: Built-in synthetic satellite stream pass generator covering global industrial clusters and risk zones.</li>
+        <li><b>Telemetry Analytics</b>: Evaluates Fire Radiative Power ($FRP$), Brightness Temperatures ($TI_4 / TI_5$), and confidence intervals.</li>
+      </ul>
+    </td>
+    <td width="50%" valign="top">
+      <h3>🤖 AI Classification Engine</h3>
+      <ul>
+        <li><b>Multi-Class Categorization</b>: Distinguishes between <i>Industrial Fires, Gas Flaring, Wildfires, Agricultural Burning</i>, and <i>Mining Thermal Activity</i>.</li>
+        <li><b>Spatial & Temporal Clustering</b>: Uses Haversine distance, OpenStreetMap proximity, and multi-pass persistence counting.</li>
+        <li><b>Explainable AI (XAI)</b>: Human-readable diagnostic reasoning chains for every anomaly signature.</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>🗺️ Tactical GIS Web Dashboard</h3>
+      <ul>
+        <li><b>Interactive Leaflet GIS Map</b>: Dynamic heatmaps, satellite imagery tiles, vector markers, and thermal pulse animations.</li>
+        <li><b>Midnight-Blue Cosmic UI</b>: Sleek, high-density tactical interface designed for mission control and operations centers.</li>
+        <li><b>Real-Time Signal Filtering</b>: Interactive category toggles, risk score sorting, min FRP sliders, and keyword search.</li>
+      </ul>
+    </td>
+    <td width="50%" valign="top">
+      <h3>⚡ Serverless & Production Architecture</h3>
+      <ul>
+        <li><b>Hybrid Deployment</b>: Native support for standalone local Python HTTP server or zero-config Vercel serverless functions.</li>
+        <li><b>SQLite Persistence Layer</b>: Embedded database storing thermal hotspots, alert histories, and facility geometries.</li>
+        <li><b>Vite Dev Proxy</b>: Hot-reloading frontend development environment seamlessly connected to backend REST endpoints.</li>
+      </ul>
+    </td>
+  </tr>
+</table>
 
-### 1. Install Frontend Dependencies & Build Dashboard
+---
 
-```bash
-# Install node packages
+## 🏛️ System Architecture
+
+```mermaid
+graph TD
+    A[NASA FIRMS Satellite Stream VIIRS/MODIS] -->|Raw Thermal Observations| B(Data Ingestion & Simulator Engine)
+    B --> C{Spatial & Temporal AI Classifier}
+    C -->|Haversine & Proximity Check| D[Known Infrastructure Database SQLite]
+    C -->|FRP & Brightness Δ Calculations| E[Risk & Anomaly Severity Evaluator]
+    D --> F[REST API Backend Python FastAPI]
+    E --> F
+    F -->|JSON Endpoints| G[Tactical Dashboard React + Leaflet GIS]
+```
+
+---
+
+## 🚀 Quickstart & Installation
+
+<table width="100%">
+  <tr>
+    <th align="left" width="50%">📦 1. Frontend Setup & Build</th>
+    <th align="left" width="50%">🐍 2. Run Full-Stack Server</th>
+  </tr>
+  <tr>
+    <td valign="top">
+      <pre><code># Install node modules
 npm install
 
-# Compile the dashboard into production bundle (dist/)
-npm run build
-```
+# Compile production bundle (dist/)
+npm run build</code></pre>
+    </td>
+    <td valign="top">
+      <pre><code># Launch Python HTTP API & UI Server
+python main.py
 
-### 2. Run the Full-Stack Server
+# Open Browser: http://localhost:8000</code></pre>
+    </td>
+  </tr>
+</table>
+
+### 🛠️ Local Development Mode (Hot-Reloading)
+
+To edit the React UI with instant hot-reloading:
 
 ```bash
-# Launch the Python HTTP API & Web Dashboard Server
+# Terminal 1: Launch Backend API (Port 8000)
 python main.py
-```
 
-Open your browser and navigate to:
+# Terminal 2: Launch Vite Dev Server (Port 3000)
+npm run dev
 ```
-http://localhost:8000
-```
+> Navigate to `http://localhost:3000`. API requests to `/api/*` are automatically proxied to the Python backend on port `8000`.
 
 ---
 
-## Local Development Mode
+## ⚙️ Configuration & Environment Variables
 
-If you are actively developing the React UI with hot reloading:
-
-1. In terminal 1, start the Python backend on port 8000:
-   ```bash
-   python main.py
-   ```
-
-2. In terminal 2, launch the Vite dev server on port 3000:
-   ```bash
-   npm run dev
-   ```
-
-3. Open `http://localhost:3000`. API requests to `/api/*` are automatically proxied to the Python backend.
-
----
-
-## Vercel Deployment
-
-This project is configured for seamless deployment on [Vercel](https://vercel.com):
-
-1. Push your code to GitHub.
-2. Import the repository into your Vercel account.
-3. Vercel automatically detects Vite, runs `npm run build`, and routes `/api/*` requests to the serverless Python function in `api/index.py`.
-4. (Optional) Set your environment variables in the Vercel project settings:
-   - `NASA_FIRMS_MAP_KEY`: Your NASA FIRMS MAP API key.
-   - `OPENAI_API_KEY`: (Optional) For external LLM reasoning.
-
----
-
-## Configuration & Environment Variables
-
-Copy `.env.example` to `.env` to configure your credentials:
+Create a `.env` file from `.env.example`:
 
 ```bash
 cp .env.example .env
 ```
 
-| Variable | Description | Default |
+| Environment Variable | Description | Default Value |
 |---|---|---|
 | `PORT` | Local server port for `main.py` | `8000` |
-| `NASA_FIRMS_MAP_KEY` | NASA FIRMS MAP API Key (enables live satellite queries) | (Simulation engine) |
-| `DATABASE_URL` | SQLite database URI | `sqlite:///thermalguard.db` |
-| `OPENAI_API_KEY` | OpenAI API key for extended analysis | `""` |
+| `NASA_FIRMS_MAP_KEY` | NASA FIRMS MAP API Key for live satellite data | *(Simulation Mode)* |
+| `DATABASE_URL` | SQLite database file URI | `sqlite:///thermalguard.db` |
+| `OPENAI_API_KEY` | (Optional) OpenAI API Key for external LLM reasoning | `""` |
 
 ---
 
-## REST API Reference
+## 📡 REST API Reference
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/status` | System health check and available endpoints |
-| `GET` | `/api/config` | Engine configuration and NASA FIRMS connection status |
-| `GET` | `/api/hotspots` | Retrieve classified hotspot records (supports `?category=`, `?q=`, `?min_confidence=`, `?min_frp=`) |
-| `GET` | `/api/hotspots/<id>` | Retrieve detailed telemetry and explanation for a specific hotspot |
-| `GET` | `/api/stats` | Telemetry summaries, total FRP, accuracy metrics, and category breakdown |
-| `GET` | `/api/alerts` | Active high-risk anomaly alerts (`risk_score >= 61`) |
-| `GET` | `/api/national-risk` | State-level thermal hazard and risk scores |
-| `GET` | `/api/facilities` | Reference database of known industrial infrastructure facilities |
-| `GET` / `POST` | `/api/refresh` | Re-generate satellite passes and re-run anomaly classification |
-| `GET` / `POST` | `/api/sync-firms` | Trigger live NASA FIRMS synchronization |
+<table width="100%">
+  <thead>
+    <tr>
+      <th align="left" width="15%">Method</th>
+      <th align="left" width="30%">Endpoint</th>
+      <th align="left" width="55%">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>GET</code></td>
+      <td><code>/api/status</code></td>
+      <td>System health check and connection status</td>
+    </tr>
+    <tr>
+      <td><code>GET</code></td>
+      <td><code>/api/hotspots</code></td>
+      <td>Retrieve classified thermal hotspots (filterable by <code>?category=</code>, <code>?q=</code>, <code>?min_frp=</code>)</td>
+    </tr>
+    <tr>
+      <td><code>GET</code></td>
+      <td><code>/api/hotspots/&lt;id&gt;</code></td>
+      <td>Get detailed telemetry and AI reasoning chain for a specific hotspot</td>
+    </tr>
+    <tr>
+      <td><code>GET</code></td>
+      <td><code>/api/stats</code></td>
+      <td>Global telemetry summary, FRP metrics, and classification distribution</td>
+    </tr>
+    <tr>
+      <td><code>GET</code></td>
+      <td><code>/api/alerts</code></td>
+      <td>Active high-risk anomaly alerts (Risk Score $\ge 61$)</td>
+    </tr>
+    <tr>
+      <td><code>GET</code></td>
+      <td><code>/api/national-risk</code></td>
+      <td>State/Regional level thermal hazard aggregation and threat indices</td>
+    </tr>
+    <tr>
+      <td><code>GET</code></td>
+      <td><code>/api/facilities</code></td>
+      <td>Reference database of known industrial, energy, and mining infrastructure</td>
+    </tr>
+    <tr>
+      <td><code>POST</code></td>
+      <td><code>/api/refresh</code></td>
+      <td>Trigger synthetic pass re-generation and re-run anomaly classifier</td>
+    </tr>
+    <tr>
+      <td><code>POST</code></td>
+      <td><code>/api/sync-firms</code></td>
+      <td>Trigger live synchronization with NASA FIRMS satellite servers</td>
+    </tr>
+  </tbody>
+</table>
 
 ---
 
-## Project Structure
+## 📂 Repository Structure
 
-```
-├── api/
-│   └── index.py               # Vercel serverless entrypoint
-├── src/
-│   ├── components/            # Tactical dashboard UI components
-│   ├── services/              # FIRMS data fetcher, AI classifier & alert engine
-│   ├── styles/                # Tailwind CSS styles and themes
-│   ├── types/                 # TypeScript interfaces and definitions
-│   ├── App.tsx                # Main tactical application shell
-│   └── main.tsx               # React DOM root mounting
-├── classifier.py              # Rule & spatial anomaly classification engine
-├── config.py                  # Environment and configuration loader
-├── database.py                # SQLite persistence layer
-├── firms_api.py               # NASA FIRMS API integration & fallback client
-├── sample_data_generator.py   # High-fidelity FIRMS satellite stream generator
-├── main.py                    # Production HTTP server serving API & static UI
-├── vite.config.ts             # Vite configuration with API proxy
-├── tsconfig.json              # TypeScript compiler settings
-├── vercel.json                # Vercel deployment configuration
-└── package.json               # Frontend dependencies and scripts
-```
+<table width="100%">
+  <tr>
+    <th align="left" width="40%">📁 Path</th>
+    <th align="left" width="60%">📝 Description</th>
+  </tr>
+  <tr>
+    <td><code>src/components/</code></td>
+    <td>Tactical GIS map, telemetry widgets, alert modals, and control panels</td>
+  </tr>
+  <tr>
+    <td><code>src/services/</code></td>
+    <td>FIRMS satellite API integration, AI classification logic & alert engine</td>
+  </tr>
+  <tr>
+    <td><code>classifier.py</code></td>
+    <td>Python spatial Haversine distance & temporal persistence engine</td>
+  </tr>
+  <tr>
+    <td><code>firms_api.py</code></td>
+    <td>NASA FIRMS API client with fallback simulation stream generator</td>
+  </tr>
+  <tr>
+    <td><code>database.py</code></td>
+    <td>SQLite database schema management and spatial queries</td>
+  </tr>
+  <tr>
+    <td><code>main.py</code></td>
+    <td>Production HTTP server serving FastAPI endpoints & compiled static UI</td>
+  </tr>
+  <tr>
+    <td><code>api/index.py</code></td>
+    <td>Vercel serverless function entry point for cloud deployment</td>
+  </tr>
+</table>
+
+---
+
+## 🌐 Vercel Cloud Deployment
+
+1. Push your repository to GitHub.
+2. Import the project into your **Vercel** dashboard.
+3. Vercel automatically detects Vite, executes `npm run build`, and routes `/api/*` traffic to `api/index.py`.
+4. Configure `NASA_FIRMS_MAP_KEY` in your Vercel Project Environment Variables.
+
+---
+
+<p align="center">
+  Built with ❤️ for Orbital Thermal Intelligence & Disaster Response
+</p>
