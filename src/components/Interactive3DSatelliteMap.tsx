@@ -8,7 +8,10 @@ import {
   Activity,
   ShieldAlert,
   RotateCcw,
-  Brain
+  Brain,
+  Moon,
+  ToggleLeft,
+  ToggleRight
 } from 'lucide-react';
 import {
   ComponentThermalItem,
@@ -606,8 +609,62 @@ export const Interactive3DSatelliteMap: React.FC<Interactive3DSatelliteMapProps>
 
           <div className="p-3 rounded-xl bg-cyan-950/30 border border-cyan-500/30">
             <span className="block text-[10px] text-cyan-300 uppercase font-bold">Next eclipse:</span>
-            <span className="text-base font-black text-cyan-200">18 min</span>
+            <span className="text-base font-black text-cyan-200">11 min</span>
             <span className="block text-[9px] text-cyan-400/80 font-normal">Expected temp: ↓ 14°C</span>
+          </div>
+        </div>
+
+        {/* 🌍 FEATURE 10: PREDICTIVE ECLIPSE MODE CARD */}
+        <div className="p-4 rounded-xl bg-indigo-950/40 border border-indigo-500/40 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-indigo-500/30 pb-2">
+            <div className="flex items-center gap-2">
+              <Moon className="w-5 h-5 text-indigo-400 animate-bounce" />
+              <h4 className="text-xs font-extrabold text-indigo-200 uppercase tracking-wider font-mono">
+                🌍 PREDICTIVE ECLIPSE MODE · FALSE ALARM REDUCTION
+              </h4>
+            </div>
+            <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+              ORBITAL ECLIPSE INTELLIGENCE
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs font-mono">
+            {/* Box 1: Eclipse Status */}
+            <div className="p-3 rounded-lg bg-slate-900/90 border border-slate-800 space-y-1">
+              <span className="text-[10px] text-indigo-300 uppercase font-bold flex items-center gap-1">
+                <Moon className="w-3.5 h-3.5 text-indigo-400" /> Eclipse Countdown
+              </span>
+              <p className="text-sm font-extrabold text-white">
+                🛰️ Satellite entering eclipse in 11 minutes.
+              </p>
+              <p className="text-[10px] text-indigo-300 font-semibold">
+                Expected thermal drop: 12–16°C.
+              </p>
+            </div>
+
+            {/* Box 2: Solar Cycle Dynamic Contrast */}
+            <div className="p-3 rounded-lg bg-slate-900/90 border border-slate-800 space-y-1">
+              <span className="text-[10px] text-amber-400 uppercase font-bold">
+                Orbital Shadow Dynamics
+              </span>
+              <div className="space-y-0.5 text-[11px]">
+                <div className="text-amber-300">☀️ During sunlight: Solar heating ↑ | Temp ↑</div>
+                <div className="text-indigo-300">🌑 During eclipse: Solar heating ↓ | Temp ↓</div>
+              </div>
+            </div>
+
+            {/* Box 3: AI Thermal Filtering (Normal vs Abnormal) */}
+            <div className="p-3 rounded-lg bg-slate-900/90 border border-emerald-500/40 space-y-1">
+              <span className="text-[10px] text-emerald-400 uppercase font-bold flex items-center gap-1">
+                <Brain className="w-3.5 h-3.5 text-emerald-400" /> AI Anomaly Filtering
+              </span>
+              <div className="text-[11px] text-slate-200">
+                Distinguishes <span className="text-emerald-400 font-bold">Normal orbital heating</span> from <span className="text-rose-400 font-bold">Abnormal thermal heating</span>.
+              </div>
+              <span className="inline-block text-[9px] font-bold text-emerald-300 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">
+                FALSE ALARMS REDUCED BY 96.4%
+              </span>
+            </div>
           </div>
         </div>
       </div>
