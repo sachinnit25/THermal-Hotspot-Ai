@@ -516,9 +516,6 @@ export default function App() {
                       }
                     />
 
-                    {/* 🌡️ 3D Satellite & Subsystem Interactive Thermal Map */}
-                    <Interactive3DSatelliteMap />
-
                     {/* Bottom Fleet Row */}
                     <CommandAndFleetRow
                       selectedHotspot={
