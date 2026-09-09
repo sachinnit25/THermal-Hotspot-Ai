@@ -526,6 +526,91 @@ export const Interactive3DSatelliteMap: React.FC<Interactive3DSatelliteMapProps>
           </div>
         </div>
       </div>
+
+      {/* 🛰️ ORBITAL THERMAL CONTEXT & CAUSAL CORRELATION PANEL */}
+      <div className="border-t border-slate-800 bg-slate-950 p-5 space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <Sun className="w-5 h-5 animate-pulse" />
+            </div>
+            <div>
+              <h3 className="text-sm font-extrabold text-white uppercase tracking-wider font-mono flex items-center gap-2">
+                Orbital Thermal Context & Solar Correlation
+              </h3>
+              <p className="text-[11px] text-slate-400">
+                Correlating satellite LEO orbital mechanics, solar irradiance flux, and subsystem thermal load.
+              </p>
+            </div>
+          </div>
+          <span className="text-[10px] font-mono font-bold px-3 py-1 rounded-full bg-cyan-950/80 text-cyan-300 border border-cyan-500/30">
+            ORBITAL INTELLIGENCE ACTIVE
+          </span>
+        </div>
+
+        {/* Causal Flow Chain Diagram */}
+        <div className="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 space-y-2">
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono block">
+            ☀️ Solar Radiation & Subsystem Causal Correlation Chain
+          </span>
+          <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-center text-xs font-mono">
+            <div className="p-2 rounded bg-slate-950 border border-amber-500/30 text-amber-300">
+              <div className="font-bold text-[11px]">☀️ SUNLIGHT</div>
+              <div className="text-[9px] text-slate-400 mt-0.5">Orbit entry</div>
+            </div>
+            <div className="p-2 rounded bg-slate-950 border border-slate-800 text-slate-300">
+              <div className="font-bold text-[11px]">↓ RAD FLUX</div>
+              <div className="text-[9px] text-slate-400 mt-0.5">+1361 W/m²</div>
+            </div>
+            <div className="p-2 rounded bg-slate-950 border border-slate-800 text-slate-300">
+              <div className="font-bold text-[11px]">↓ SURF TEMP</div>
+              <div className="text-[9px] text-slate-400 mt-0.5">Rises to +94°C</div>
+            </div>
+            <div className="p-2 rounded bg-slate-950 border border-amber-500/30 text-amber-400">
+              <div className="font-bold text-[11px]">↓ BATTERY TEMP</div>
+              <div className="text-[9px] text-amber-300/80 mt-0.5">Coupled rise</div>
+            </div>
+            <div className="p-2 rounded bg-slate-950 border border-rose-500/40 text-rose-300 font-bold">
+              <div className="font-bold text-[11px]">🔴 ANOMALY</div>
+              <div className="text-[9px] text-rose-400 mt-0.5">Power load peak</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Telemetry Metrics Grid (Exact requested specifications) */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 font-mono text-xs">
+          <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800">
+            <span className="block text-[10px] text-slate-400 uppercase">Altitude:</span>
+            <span className="text-base font-extrabold text-slate-100">547 km</span>
+          </div>
+
+          <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800">
+            <span className="block text-[10px] text-slate-400 uppercase">Orbit:</span>
+            <span className="text-base font-extrabold text-cyan-300">LEO</span>
+          </div>
+
+          <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800">
+            <span className="block text-[10px] text-slate-400 uppercase">Velocity:</span>
+            <span className="text-base font-extrabold text-slate-100">7.6 km/s</span>
+          </div>
+
+          <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/30">
+            <span className="block text-[10px] text-amber-400 uppercase font-bold">☀️ Sunlight exposure:</span>
+            <span className="text-base font-black text-amber-300">HIGH</span>
+          </div>
+
+          <div className="p-3 rounded-xl bg-rose-950/30 border border-rose-500/30">
+            <span className="block text-[10px] text-rose-400 uppercase font-bold">Thermal load:</span>
+            <span className="text-base font-black text-rose-300">HIGH</span>
+          </div>
+
+          <div className="p-3 rounded-xl bg-cyan-950/30 border border-cyan-500/30">
+            <span className="block text-[10px] text-cyan-300 uppercase font-bold">Next eclipse:</span>
+            <span className="text-base font-black text-cyan-200">18 min</span>
+            <span className="block text-[9px] text-cyan-400/80 font-normal">Expected temp: ↓ 14°C</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
