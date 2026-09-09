@@ -10,6 +10,7 @@ import { HotspotList } from './components/HotspotList';
 import { AlertRulesModal } from './components/AlertRulesModal';
 import { ApiKeyModal } from './components/ApiKeyModal';
 import { CsvImportModal } from './components/CsvImportModal';
+import { ComponentHotspotInspector } from './components/ComponentHotspotInspector';
 import { IntroAnimation } from './components/IntroAnimation';
 import {
   getInitialHotspotsWithAssessments,
@@ -50,7 +51,7 @@ export default function App() {
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
 
   // Active Nav Pill
-  const [activePill, setActivePill] = useState<'area' | 'map' | 'routes' | 'weather' | 'analytics' | 'firms'>('area');
+  const [activePill, setActivePill] = useState<'area' | 'map' | 'routes' | 'weather' | 'analytics' | 'firms' | 'components'>('area');
 
   // Modals & Workbench Drawer
   const [isWorkbenchOpen, setIsWorkbenchOpen] = useState<boolean>(false);
@@ -675,6 +676,11 @@ export default function App() {
                 hotspots={hotspots}
                 metrics={metrics}
               />
+            )}
+
+            {/* VIEW 4B: Component & Hardware Hotspots AI */}
+            {activePill === 'components' && (
+              <ComponentHotspotInspector />
             )}
 
             {/* VIEW 5: NASA FIRMS Full Explorer */}

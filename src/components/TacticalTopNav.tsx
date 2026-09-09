@@ -10,8 +10,8 @@ import {
 } from 'lucide-react';
 
 interface TacticalTopNavProps {
-  activePill: 'area' | 'map' | 'routes' | 'weather' | 'analytics' | 'firms';
-  onSelectPill: (pill: 'area' | 'map' | 'routes' | 'weather' | 'analytics' | 'firms') => void;
+  activePill: 'area' | 'map' | 'routes' | 'weather' | 'analytics' | 'firms' | 'components';
+  onSelectPill: (pill: 'area' | 'map' | 'routes' | 'weather' | 'analytics' | 'firms' | 'components') => void;
   activeAlertCount: number;
   onOpenAlerts: () => void;
   onOpenApiKeys: () => void;
@@ -80,6 +80,17 @@ export const TacticalTopNav: React.FC<TacticalTopNavProps> = ({
           }`}
         >
           Map
+        </button>
+
+        <button
+          onClick={() => onSelectPill('components')}
+          className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all flex items-center gap-1 ${
+            activePill === 'components'
+              ? 'bg-amber-400 text-slate-950 font-extrabold shadow-[0_0_12px_rgba(251,191,36,0.4)]'
+              : 'text-amber-400 hover:bg-amber-400/10'
+          }`}
+        >
+          🔥 Hotspots AI
         </button>
 
         <button
