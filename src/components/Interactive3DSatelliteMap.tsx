@@ -297,9 +297,9 @@ export const Interactive3DSatelliteMap: React.FC<Interactive3DSatelliteMapProps>
         }
       });
 
-      // Slowly rotate Globe if not dragging
+      // Slowly rotate Globe if not dragging (Slower, elegant orbital motion)
       if (!isDraggingRef.current) {
-        setRotation((prev) => ({ ...prev, ry: prev.ry + 0.003 }));
+        setRotation((prev) => ({ ...prev, ry: prev.ry + 0.0006 }));
       }
 
       animId = requestAnimationFrame(render);
@@ -312,7 +312,7 @@ export const Interactive3DSatelliteMap: React.FC<Interactive3DSatelliteMapProps>
     };
   }, [rotation, selectedNode]);
 
-  // Mouse Interaction handlers for rotating Globe
+  // Mouse Interaction handlers for rotating Globe (Slower drag sensitivity)
   const handleMouseDown = (e: React.MouseEvent) => {
     isDraggingRef.current = true;
     lastMouseRef.current = { x: e.clientX, y: e.clientY };
@@ -324,8 +324,8 @@ export const Interactive3DSatelliteMap: React.FC<Interactive3DSatelliteMapProps>
     const dy = e.clientY - lastMouseRef.current.y;
 
     setRotation((prev) => ({
-      rx: Math.max(-1.2, Math.min(1.2, prev.rx + dy * 0.005)),
-      ry: prev.ry + dx * 0.005
+      rx: Math.max(-1.2, Math.min(1.2, prev.rx + dy * 0.0015)),
+      ry: prev.ry + dx * 0.0015
     }));
 
     lastMouseRef.current = { x: e.clientX, y: e.clientY };
