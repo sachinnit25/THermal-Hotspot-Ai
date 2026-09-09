@@ -164,35 +164,29 @@ export const HotspotDetailWorkbench: React.FC<HotspotDetailWorkbenchProps> = ({
             </p>
           </div>
 
-          {/* Industrial Risk Score Meter */}
-          <div className="rounded-xl border border-white/10 bg-space-850/60 p-4">
+          {/* Signature Thermal Hazard Score Card (0 - 100) */}
+          <div className="rounded-xl border border-rose-500/30 bg-rose-950/20 p-4">
             <div className="flex items-center justify-between">
-              <span className="font-mono text-[10px] uppercase tracking-wider text-slate-400">
-                Industrial Hazard Index
+              <span className="font-mono text-[10px] uppercase tracking-wider text-rose-300 font-bold">
+                THERMAL HAZARD SCORE
               </span>
-              <span className={`font-mono text-xs font-bold ${isCritical ? 'text-rose-400' : 'text-cyan-300'}`}>
-                {(industrialRisk * 100).toFixed(0)}%
+              <span className={`font-mono text-xs font-black px-2 py-0.5 rounded ${isCritical ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40' : 'bg-amber-500/20 text-amber-300'}`}>
+                {Math.round(industrialRisk * 100)} / 100 — {isCritical ? 'CRITICAL' : industrialRisk > 0.4 ? 'WARNING' : 'SAFE'}
               </span>
             </div>
+
             <div className="mt-2.5 h-2 w-full rounded-full bg-white/10 overflow-hidden relative">
               <div
                 className={`h-full rounded-full transition-all duration-700 ${
-                  isCritical ? 'bg-rose-500 shadow-[0_0_10px_#ff4b72]' : industrialRisk > 0.4 ? 'bg-amber-400' : 'bg-cyan-400'
+                  isCritical ? 'bg-gradient-to-r from-amber-500 to-rose-500 shadow-[0_0_10px_#ff4b72]' : 'bg-gradient-to-r from-emerald-400 to-amber-400'
                 }`}
                 style={{ width: `${Math.round(industrialRisk * 100)}%` }}
               />
-              {/* Threshold mark at 72% */}
-              <div 
-                className="absolute top-0 bottom-0 w-0.5 bg-rose-400/80 shadow-[0_0_4px_#ff4b72]"
-                style={{ left: '72%' }}
-                title="Industrial Alert Escalation Threshold (0.72)"
-              />
             </div>
-            <p className="mt-2 text-[10px] text-slate-400 flex items-center justify-between">
-              <span>Threshold: 72%</span>
-              <span className={isCritical ? 'text-rose-400 font-semibold' : 'text-slate-500'}>
-                {isCritical ? 'ESCALATION TRIGGERED' : 'Within Normal Bounds'}
-              </span>
+            
+            <p className="mt-2 text-[10px] text-slate-400 flex items-center justify-between font-mono">
+              <span>0 (SAFE) ── 30 ── 60 ── 80 ── 100</span>
+              <span className="text-cyan-300 font-semibold">Weighted 5-Factor Score</span>
             </p>
           </div>
 

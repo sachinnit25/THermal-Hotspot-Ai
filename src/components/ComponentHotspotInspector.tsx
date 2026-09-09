@@ -17,7 +17,10 @@ import {
   Clock,
   LineChart,
   Layers,
-  BarChart3
+  BarChart3,
+  Gauge,
+  Thermometer,
+  Percent
 } from 'lucide-react';
 
 export interface ComponentThermalItem {
@@ -40,6 +43,71 @@ export interface TrendPoint {
   isBreached: boolean;
 }
 
+export interface ThermalHazardScoreBreakdown {
+  totalScore: number;
+  statusLabel: 'SAFE' | 'WARNING' | 'ELEVATED' | 'CRITICAL';
+  statusColor: string;
+  temperatureScore: number;
+  riseRateScore: number;
+  criticalityScore: number;
+  durationScore: number;
+  historyScore: number;
+}
+
+export function computeThermalHazardScore(item: ComponentThermalItem): ThermalHazardScoreBreakdown {
+  const delta = Math.max(0, item.currentTempC - item.baselineTempC);
+  
+  // 1. Temperature (35%)
+  const temperatureScore = Math.min(35, Number(((delta / 25) * 35).toFixed(1)));
+
+  // 2. Rate of Temperature Rise (25%)
+  const riseRateScore = Math.min(25, Number(((item.heatingRateCMin / 4.0) * 25).toFixed(1)));
+
+  // 3. Component Criticality (20%)
+  let criticalityScore = 12;
+  if (item.category === 'Power' || item.name.includes('Power')) criticalityScore = 20;
+  else if (item.category === 'Compute' || item.category === 'Battery') criticalityScore = 16;
+  else if (item.category === 'Cooling') criticalityScore = 12;
+  else criticalityScore = 8;
+
+  // 4. Exposure Duration (10%)
+  const durationScore = item.status === 'Critical' ? 10 : item.status === 'Warning' ? 6 : 3;
+
+  // 5. Historical Anomaly (10%)
+  const historyScore = delta >= 15 ? 10 : delta >= 5 ? 7 : 3;
+
+  const totalRaw = Math.round(temperatureScore + riseRateScore + criticalityScore + durationScore + historyScore);
+  const totalScore = Math.min(100, Math.max(0, totalRaw));
+
+  let statusLabel: 'SAFE' | 'WARNING' | 'ELEVATED' | 'CRITICAL' = 'SAFE';
+  let statusColor = 'text-emerald-400';
+
+  if (totalScore >= 80) {
+    statusLabel = 'CRITICAL';
+    statusColor = 'text-rose-400';
+  } else if (totalScore >= 60) {
+    statusLabel = 'ELEVATED';
+    statusColor = 'text-amber-400';
+  } else if (totalScore >= 31) {
+    statusLabel = 'WARNING';
+    statusColor = 'text-amber-300';
+  } else {
+    statusLabel = 'SAFE';
+    statusColor = 'text-emerald-400';
+  }
+
+  return {
+    totalScore,
+    statusLabel,
+    statusColor,
+    temperatureScore,
+    riseRateScore,
+    criticalityScore,
+    durationScore,
+    historyScore
+  };
+}
+
 export function computeThermalTrendPrediction(
   item: ComponentThermalItem,
   criticalLimitC: number = 100.0,
@@ -52,10 +120,8 @@ export function computeThermalTrendPrediction(
   const rate = item.heatingRateCMin;
   const current = item.currentTempC;
 
-  // Time horizon steps in minutes: 0 (Now), 5, 10, 15, 20, 30
   const horizons = [0, 5, 10, 15, 20, 30];
 
-  // Model variance coefficient
   let modelMultiplier = 1.0;
   if (model === 'XGBoost / Random Forest') modelMultiplier = 0.95;
   if (model === 'LSTM Time-Series') modelMultiplier = 1.08;
@@ -193,6 +259,9 @@ export function ComponentHotspotInspector() {
   // Time-series trend calculation
   const trendPrediction = computeThermalTrendPrediction(selectedComponent, criticalLimitC, selectedModel);
 
+  // Signature 0-100 Thermal Hazard Score calculation
+  const hazardScore = computeThermalHazardScore(selectedComponent);
+
   const handleSimulateStress = () => {
     setIsSimulatingStress(true);
     setTimeout(() => {
@@ -243,7 +312,6 @@ export function ComponentHotspotInspector() {
     setNewCompName('');
   };
 
-  // Find maximum temperature for chart scaling
   const maxProjected = Math.max(120, ...trendPrediction.points.map((p) => p.tempC));
 
   return (
@@ -254,11 +322,11 @@ export function ComponentHotspotInspector() {
           <div className="flex items-center gap-2">
             <Flame className="w-6 h-6 text-amber-400 animate-pulse" />
             <h2 className="text-xl font-bold text-slate-100 tracking-wide">
-              🔥 Predictive Thermal Trend & Anomaly AI Pipeline
+              🔥 Hardware & Subsystem Hotspot AI Engine
             </h2>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Transforms monitoring data into time-series thermal trajectory predictions and estimates time-to-critical thresholds.
+            Real-time component thermal telemetry, baseline predictive delta ($ΔT$), and AI trajectory anomaly intelligence.
           </p>
         </div>
 
@@ -378,7 +446,7 @@ export function ComponentHotspotInspector() {
             </div>
           </div>
 
-          {/* Quick Add Custom Component Form */}
+          {/* Form */}
           <form onSubmit={handleAddComponent} className="bg-slate-950/60 p-4 rounded-xl border border-slate-800 flex flex-wrap items-end gap-3">
             <div className="flex-1 min-w-[120px]">
               <label className="block text-[10px] text-slate-400 uppercase font-semibold mb-1">
@@ -435,8 +503,98 @@ export function ComponentHotspotInspector() {
           </form>
         </div>
 
-        {/* Right Column: AI Intelligence Reasoning Card */}
+        {/* Right Column: AI Intelligence Reasoning Card & SIGNATURE HAZARD SCORE */}
         <div className="lg:col-span-5 flex flex-col gap-4">
+          
+          {/* 🚨 SIGNATURE FEATURE: THERMAL HAZARD SCORE (0-100) */}
+          <div className="bg-slate-950/95 p-5 rounded-xl border-2 border-rose-500/40 shadow-[0_0_30px_rgba(244,63,94,0.15)] relative overflow-hidden">
+            <div className="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
+              <div className="flex items-center gap-2">
+                <Gauge className="w-5 h-5 text-rose-400" />
+                <h3 className="text-sm font-extrabold text-slate-100 uppercase tracking-wider">
+                  THERMAL HAZARD SCORE
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                SIGNATURE METRIC
+              </span>
+            </div>
+
+            {/* Big Score Display */}
+            <div className="flex items-baseline justify-between mb-4">
+              <div className="flex items-baseline gap-2">
+                <span className={`text-4xl font-black font-mono tracking-tight ${hazardScore.statusColor}`}>
+                  {hazardScore.totalScore}
+                </span>
+                <span className="text-xl font-bold text-slate-500 font-mono">/ 100</span>
+              </div>
+              <span className={`text-sm font-black font-mono px-3 py-1 rounded border uppercase ${
+                hazardScore.totalScore >= 80
+                  ? 'bg-rose-500/20 text-rose-400 border-rose-500/40 animate-pulse'
+                  : hazardScore.totalScore >= 60
+                  ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
+                  : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+              }`}>
+                — {hazardScore.statusLabel}
+              </span>
+            </div>
+
+            {/* 0 to 100 Linear Hazard Scale Gauge */}
+            <div className="space-y-1.5 mb-5">
+              <div className="h-3 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800 relative shadow-inner">
+                <div
+                  className={`h-full rounded-full transition-all duration-700 ${
+                    hazardScore.totalScore >= 80
+                      ? 'bg-gradient-to-r from-amber-500 to-rose-500 shadow-[0_0_15px_#f43f5e]'
+                      : hazardScore.totalScore >= 60
+                      ? 'bg-gradient-to-r from-amber-400 to-amber-500'
+                      : 'bg-gradient-to-r from-emerald-400 to-amber-400'
+                  }`}
+                  style={{ width: `${hazardScore.totalScore}%` }}
+                />
+              </div>
+
+              {/* Benchmark Markers Line: 0 --- 30 --- 60 --- 80 --- 100 */}
+              <div className="flex items-center justify-between text-[9px] font-mono text-slate-400 font-semibold px-0.5">
+                <span>0 (SAFE)</span>
+                <span>30 (WARN)</span>
+                <span>60 (ELEV)</span>
+                <span>80 (CRIT)</span>
+                <span>100</span>
+              </div>
+            </div>
+
+            {/* Sub-Score Parameters Breakdown Table (Exact percentages) */}
+            <div className="bg-slate-900/90 rounded-lg p-3 border border-slate-800 space-y-2 text-xs">
+              <span className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                Multi-Factor Weighted Sub-Scores
+              </span>
+
+              <div className="space-y-1.5 font-mono text-[11px]">
+                <div className="flex justify-between items-center text-slate-300">
+                  <span>Temperature Delta (35%)</span>
+                  <span className="font-bold text-slate-100">{hazardScore.temperatureScore} / 35</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-300">
+                  <span>Rate of Temperature Rise (25%)</span>
+                  <span className="font-bold text-slate-100">{hazardScore.riseRateScore} / 25</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-300">
+                  <span>Component Criticality (20%)</span>
+                  <span className="font-bold text-slate-100">{hazardScore.criticalityScore} / 20</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-300">
+                  <span>Exposure Duration (10%)</span>
+                  <span className="font-bold text-slate-100">{hazardScore.durationScore} / 10</span>
+                </div>
+                <div className="flex justify-between items-center text-slate-300">
+                  <span>Historical Anomaly (10%)</span>
+                  <span className="font-bold text-slate-100">{hazardScore.historyScore} / 10</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 p-5 rounded-xl border border-amber-500/30 shadow-xl relative overflow-hidden">
             <div className="flex items-center gap-2 mb-3">
               <Sparkles className="w-5 h-5 text-amber-400" />
@@ -449,46 +607,6 @@ export function ComponentHotspotInspector() {
               <p className="text-xs font-mono text-slate-100 leading-relaxed">
                 "{selectedAiAnalysis.narrative}"
               </p>
-            </div>
-
-            {/* Metrics Breakdown */}
-            <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="bg-slate-950/80 p-2.5 rounded border border-slate-800">
-                <span className="block text-[10px] text-slate-400 uppercase font-medium mb-0.5">
-                  Target Component
-                </span>
-                <span className="font-bold text-slate-200">{selectedComponent.name}</span>
-              </div>
-
-              <div className="bg-slate-950/80 p-2.5 rounded border border-slate-800">
-                <span className="block text-[10px] text-slate-400 uppercase font-medium mb-0.5">
-                  Delta vs Baseline
-                </span>
-                <span
-                  className={`font-mono font-bold ${
-                    selectedAiAnalysis.tempDelta > 0 ? 'text-rose-400' : 'text-emerald-400'
-                  }`}
-                >
-                  +{selectedAiAnalysis.tempDelta}°C
-                </span>
-              </div>
-
-              <div className="bg-slate-950/80 p-2.5 rounded border border-slate-800">
-                <span className="block text-[10px] text-slate-400 uppercase font-medium mb-0.5">
-                  Calculated Risk
-                </span>
-                <span
-                  className={`font-bold px-2 py-0.5 rounded text-[10px] ${
-                    selectedAiAnalysis.riskLevel === 'CRITICAL'
-                      ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                      : selectedAiAnalysis.riskLevel === 'HIGH'
-                      ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                      : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                  }`}
-                >
-                  {selectedAiAnalysis.riskLevel}
-                </span>
-              </div>
             </div>
           </div>
         </div>
