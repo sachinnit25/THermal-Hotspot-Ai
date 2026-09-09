@@ -54,8 +54,8 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState<{ title: string; desc: string; tone: string } | null>(null);
   const [soundEnabled, setSoundEnabled] = useState<boolean>(true);
 
-  // Active Nav Pill
-  const [activePill, setActivePill] = useState<'area' | 'map' | '3dmap' | 'routes' | 'weather' | 'analytics' | 'firms' | 'components'>('area');
+  // Active Nav Pill - Focused purely on NASA FIRMS AI Detective
+  const [activePill, setActivePill] = useState<'area' | 'map' | 'analytics' | 'firms'>('area');
 
   // Modals & Workbench Drawer
   const [isWorkbenchOpen, setIsWorkbenchOpen] = useState<boolean>(false);
@@ -553,184 +553,12 @@ export default function App() {
               </div>
             )}
 
-            {/* VIEW 2: Routes */}
-            {activePill === 'routes' && (
-              <div className="virevo-card p-6 space-y-6">
-
-                <div className="flex items-center justify-between border-b border-[#1B2935] pb-4">
-
-                  <div>
-                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                      <Route
-                        size={18}
-                        className="text-[#FF8A00]"
-                      />
-
-                      <span>
-                        Drone Patrol Routes & Thermal Interception Vectors
-                      </span>
-                    </h3>
-
-                    <p className="text-xs text-slate-400 mt-1">
-                      Waypoint navigation corridors, terrain obstacle avoidance, and perimeter tracking.
-                    </p>
-                  </div>
-
-                  <span className="font-mono text-xs font-bold text-[#FFB347] bg-[#FF8A00]/10 border border-[#FF8A00]/30 px-3.5 py-1 rounded-full">
-                    4 Active Routes
-                  </span>
-
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-
-                  {[
-                    {
-                      name: 'Alpha-01: Ridge Fire Perimeter',
-                      distance: '42 km',
-                      eta: '18 min',
-                      status: 'In Progress'
-                    },
-                    {
-                      name: 'Bravo-04: Industrial Corridor Scan',
-                      distance: '28 km',
-                      eta: '12 min',
-                      status: 'Completed'
-                    },
-                    {
-                      name: 'Charlie-02: Forest Canopy Patrol',
-                      distance: '65 km',
-                      eta: '26 min',
-                      status: 'Scheduled'
-                    },
-                    {
-                      name: 'Delta-09: Flare Stack Intercept',
-                      distance: '19 km',
-                      eta: '08 min',
-                      status: 'Active'
-                    },
-                  ].map((route, i) => (
-                    <div
-                      key={i}
-                      className="rounded-2xl border border-[#1B2935] bg-[#0B1118]/70 p-4 space-y-2"
-                    >
-                      <span className="text-[10px] font-mono text-[#FFB347] uppercase font-bold">
-                        {route.status}
-                      </span>
-
-                      <h4 className="text-sm font-bold text-white">
-                        {route.name}
-                      </h4>
-
-                      <div className="flex items-center justify-between text-xs font-mono pt-2 border-t border-[#1B2935]">
-
-                        <span className="text-slate-400">
-                          Distance: {route.distance}
-                        </span>
-
-                        <span className="text-[#FF8A00] font-bold">
-                          ETA: {route.eta}
-                        </span>
-
-                      </div>
-                    </div>
-                  ))}
-
-                </div>
-              </div>
-            )}
-
-            {/* VIEW 3: Weather & Atmospheric Surveillance */}
-            {activePill === 'weather' && (
-              <div className="grid gap-6 lg:grid-cols-2">
-
-                <div className="virevo-card p-6 space-y-4">
-
-                  <h3 className="text-base font-bold text-white flex items-center gap-2">
-                    <Wind
-                      size={18}
-                      className="text-[#38BDF8]"
-                    />
-
-                    <span>
-                      Atmospheric Wind Vector Model
-                    </span>
-                  </h3>
-
-                  <p className="text-xs text-slate-400">
-                    Surface wind speed and thermal plume propagation vector tracking.
-                  </p>
-
-                  <div className="grid grid-cols-2 gap-4 pt-2">
-
-                    <div className="rounded-2xl border border-[#1B2935] bg-[#0B1118] p-4">
-                      <span className="text-xs text-slate-400">
-                        Sustained Wind
-                      </span>
-
-                      <p className="text-2xl font-extrabold font-mono text-white mt-1">
-                        10 km/h W-E
-                      </p>
-                    </div>
-
-                    <div className="rounded-2xl border border-[#1B2935] bg-[#0B1118] p-4">
-                      <span className="text-xs text-slate-400">
-                        Peak Gusts
-                      </span>
-
-                      <p className="text-2xl font-extrabold font-mono text-[#FF8A00] mt-1">
-                        24 km/h
-                      </p>
-                    </div>
-
-                  </div>
-                </div>
-
-                <div className="virevo-card p-6 space-y-4">
-
-                  <h3 className="text-base font-bold text-white flex items-center gap-2">
-                    <Flame
-                      size={18}
-                      className="text-[#FF3B30]"
-                    />
-
-                    <span>
-                      Biomass Fire Moisture Index
-                    </span>
-                  </h3>
-
-                  <p className="text-xs text-slate-400">
-                    Combines relative humidity (32%), temperature (28°C), and drought conditions.
-                  </p>
-
-                  <div className="p-4 rounded-2xl border border-[#FF3B30]/30 bg-[#FF3B30]/10 text-xs text-white">
-                    Dry atmospheric conditions verified. Recommended drone overpass cycle: 15 minutes.
-                  </div>
-
-                </div>
-
-              </div>
-            )}
-
-            {/* VIEW 4: Telemetry Analytics */}
+            {/* VIEW 2: Telemetry Analytics */}
             {activePill === 'analytics' && (
               <TelemetryAnalytics
                 hotspots={hotspots}
                 metrics={metrics}
               />
-            )}
-
-            {/* VIEW 4B: Component & Hardware Hotspots AI */}
-            {activePill === 'components' && (
-              <ComponentHotspotInspector />
-            )}
-
-            {/* VIEW 4C: Dedicated 3D Satellite Map */}
-            {activePill === '3dmap' && (
-              <div className="space-y-6">
-                <Interactive3DSatelliteMap />
-                <ComponentHotspotInspector />
-              </div>
             )}
 
             {/* VIEW 5: NASA FIRMS Full Explorer */}

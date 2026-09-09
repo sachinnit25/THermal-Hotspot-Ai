@@ -10,8 +10,8 @@ import {
 } from 'lucide-react';
 
 interface TacticalTopNavProps {
-  activePill: 'area' | 'map' | '3dmap' | 'routes' | 'weather' | 'analytics' | 'firms' | 'components';
-  onSelectPill: (pill: 'area' | 'map' | '3dmap' | 'routes' | 'weather' | 'analytics' | 'firms' | 'components') => void;
+  activePill: 'area' | 'map' | 'analytics' | 'firms';
+  onSelectPill: (pill: 'area' | 'map' | 'analytics' | 'firms') => void;
   activeAlertCount: number;
   onOpenAlerts: () => void;
   onOpenApiKeys: () => void;
@@ -58,7 +58,7 @@ export const TacticalTopNav: React.FC<TacticalTopNavProps> = ({
         </div>
       </div>
 
-      {/* CENTER NAVIGATION */}
+      {/* CENTER NAVIGATION - NASA FIRMS AI DETECTIVE FOCUS */}
       <div className="flex items-center gap-1 overflow-x-auto rounded-full border border-[#1B2935] bg-[#0B1118]/90 p-1.5 backdrop-blur-xl">
         <button
           onClick={() => onSelectPill('area')}
@@ -68,62 +68,18 @@ export const TacticalTopNav: React.FC<TacticalTopNavProps> = ({
               : 'text-slate-400 hover:text-white hover:bg-white/5'
           }`}
         >
-          Area
+          🛰️ Tactical Grid & Map
         </button>
 
         <button
-          onClick={() => onSelectPill('map')}
-          className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
-            activePill === 'map'
-              ? 'bg-[#38BDF8] text-[#05080D] font-bold shadow-[0_0_12px_rgba(56,189,248,0.18)]'
-              : 'text-slate-400 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          Map
-        </button>
-
-        <button
-          onClick={() => onSelectPill('3dmap')}
+          onClick={() => onSelectPill('firms')}
           className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all flex items-center gap-1 ${
-            activePill === '3dmap'
-              ? 'bg-cyan-400 text-slate-950 font-extrabold shadow-[0_0_12px_rgba(56,189,248,0.4)]'
-              : 'text-cyan-300 hover:bg-cyan-400/10'
-          }`}
-        >
-          🛰️ 3D Satellite
-        </button>
-
-        <button
-          onClick={() => onSelectPill('components')}
-          className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all flex items-center gap-1 ${
-            activePill === 'components'
+            activePill === 'firms'
               ? 'bg-amber-400 text-slate-950 font-extrabold shadow-[0_0_12px_rgba(251,191,36,0.4)]'
-              : 'text-amber-400 hover:bg-amber-400/10'
+              : 'text-amber-300 hover:bg-amber-400/10'
           }`}
         >
-          🔥 Hotspots AI
-        </button>
-
-        <button
-          onClick={() => onSelectPill('routes')}
-          className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
-            activePill === 'routes'
-              ? 'bg-[#38BDF8] text-[#05080D] font-bold shadow-[0_0_12px_rgba(56,189,248,0.18)]'
-              : 'text-slate-400 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          Routes
-        </button>
-
-        <button
-          onClick={() => onSelectPill('weather')}
-          className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
-            activePill === 'weather'
-              ? 'bg-[#38BDF8] text-[#05080D] font-bold shadow-[0_0_12px_rgba(56,189,248,0.18)]'
-              : 'text-slate-400 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          Weather
+          🔥 NASA FIRMS Stream & AI Inspector
         </button>
 
         <button
@@ -134,18 +90,7 @@ export const TacticalTopNav: React.FC<TacticalTopNavProps> = ({
               : 'text-slate-400 hover:text-white hover:bg-white/5'
           }`}
         >
-          Analytics
-        </button>
-
-        <button
-          onClick={() => onSelectPill('firms')}
-          className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
-            activePill === 'firms'
-              ? 'bg-[#38BDF8] text-[#05080D] font-bold shadow-[0_0_12px_rgba(56,189,248,0.18)]'
-              : 'text-slate-400 hover:text-white hover:bg-white/5'
-          }`}
-        >
-          FIRMS Feed
+          📊 Risk Analytics
         </button>
       </div>
 
