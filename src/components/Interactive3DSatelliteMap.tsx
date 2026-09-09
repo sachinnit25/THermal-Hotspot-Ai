@@ -11,7 +11,8 @@ import {
   Brain,
   Moon,
   ToggleLeft,
-  ToggleRight
+  ToggleRight,
+  CheckCircle
 } from 'lucide-react';
 import {
   ComponentThermalItem,
@@ -664,6 +665,91 @@ export const Interactive3DSatelliteMap: React.FC<Interactive3DSatelliteMapProps>
               <span className="inline-block text-[9px] font-bold text-emerald-300 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">
                 FALSE ALARMS REDUCED BY 96.4%
               </span>
+            </div>
+          </div>
+        </div>
+
+        {/* 🚨 FEATURE 11: FALSE ALARM REDUCTION MATRIX */}
+        <div className="p-4 rounded-xl bg-slate-900/90 border-2 border-emerald-500/40 space-y-3 shadow-xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2">
+            <div className="flex items-center gap-2">
+              <ShieldAlert className="w-5 h-5 text-emerald-400 animate-pulse" />
+              <h4 className="text-xs font-extrabold text-white uppercase tracking-wider font-mono">
+                🚨 FEATURE 11: CONTEXT-AWARE FALSE ALARM REDUCTION ENGINE
+              </h4>
+            </div>
+            <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+              SMART DISCRIMINATOR
+            </span>
+          </div>
+
+          <p className="text-[11px] text-slate-300 font-mono">
+            Traditional thermal thresholds falsely trigger alarms at 90°C during solar facing. ThermalGuard AI evaluates 4-point orbital context before classifying:
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-xs">
+            {/* Scenario A: Normal Orbital Heating (Filtered out) */}
+            <div className="p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-500/30 space-y-2">
+              <div className="flex items-center justify-between border-b border-emerald-500/20 pb-1.5">
+                <span className="font-bold text-slate-200 text-xs">CASE A: Solar Panel @ 90°C</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                  FILTERED (FALSE ALARM)
+                </span>
+              </div>
+              <div className="space-y-1 text-[11px] text-slate-300">
+                <div className="flex justify-between">
+                  <span>Facing the Sun?</span>
+                  <span className="text-emerald-400 font-bold">YES</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Expected for orbital position?</span>
+                  <span className="text-emerald-400 font-bold">YES</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Increased abnormally?</span>
+                  <span className="text-emerald-400 font-bold">NO</span>
+                </div>
+              </div>
+              <div className="pt-2 border-t border-emerald-500/20 flex items-center justify-between text-xs font-extrabold text-emerald-400">
+                <span>CONCLUSION:</span>
+                <span className="flex items-center gap-1">
+                  <CheckCircle className="w-3.5 h-3.5" /> 🟢 NORMAL THERMAL CONDITION
+                </span>
+              </div>
+            </div>
+
+            {/* Scenario B: Real Thermal Anomaly (Flagged) */}
+            <div className="p-3.5 rounded-xl bg-rose-950/30 border border-rose-500/40 space-y-2">
+              <div className="flex items-center justify-between border-b border-rose-500/20 pb-1.5">
+                <span className="font-bold text-slate-200 text-xs">CASE B: Power Module @ 90°C</span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/40 animate-pulse">
+                  ALARM VERIFIED
+                </span>
+              </div>
+              <div className="space-y-1 text-[11px] text-slate-300">
+                <div className="flex justify-between">
+                  <span>Sun exposure?</span>
+                  <span className="text-slate-200">NORMAL</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Temperature rise?</span>
+                  <span className="text-rose-400 font-bold">ABNORMAL (+4.2°C/min)</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Historical pattern?</span>
+                  <span className="text-rose-400 font-bold">ABNORMAL</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Component criticality?</span>
+                  <span className="text-rose-400 font-bold">CRITICAL</span>
+                </div>
+              </div>
+              <div className="pt-2 border-t border-rose-500/20 flex items-center justify-between text-xs font-extrabold text-rose-400">
+                <span>CONCLUSION:</span>
+                <span className="flex items-center gap-1">
+                  <ShieldAlert className="w-3.5 h-3.5" /> 🔴 REAL THERMAL ANOMALY
+                </span>
+              </div>
             </div>
           </div>
         </div>
