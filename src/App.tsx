@@ -11,6 +11,7 @@ import { AlertRulesModal } from './components/AlertRulesModal';
 import { ApiKeyModal } from './components/ApiKeyModal';
 import { CsvImportModal } from './components/CsvImportModal';
 import { ComponentHotspotInspector } from './components/ComponentHotspotInspector';
+import { MainScreenEmergencyBanner } from './components/MainScreenEmergencyBanner';
 import { IntroAnimation } from './components/IntroAnimation';
 import {
   getInitialHotspotsWithAssessments,
@@ -46,6 +47,7 @@ export default function App() {
   // Telemetry & Hotspots State
   const [hotspots, setHotspots] = useState<Hotspot[]>(() => getInitialHotspotsWithAssessments());
   const [selectedHotspot, setSelectedHotspot] = useState<Hotspot | null>(null);
+  const [emergencyBannerHotspot, setEmergencyBannerHotspot] = useState<Hotspot | null>(null);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [isAssessing, setIsAssessing] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<{ title: string; desc: string; tone: string } | null>(null);
@@ -246,6 +248,38 @@ export default function App() {
     setIsRefreshing(false);
   };
 
+  const handleNormalizeHotspot = (hotspotId: string) => {
+    setHotspots((prev) =>
+      prev.map((h) => {
+        if (h.id === hotspotId) {
+          const normalizedEvidence = {
+            ...h.evidence,
+            brightnessK: 300.0,
+            frpMW: 10.0,
+            confidence: 95,
+          };
+          const assessment = assessHotspot(normalizedEvidence);
+          assessment.explanation = `✅ Thermal anomaly successfully normalized by emergency safety response team. Baseline temperatures restored (300.0 K / 26.8°C).`;
+          assessment.riskLevel = 'watch';
+          assessment.industrialRisk = 0.15;
+          return {
+            ...h,
+            brightnessK: 300.0,
+            frpMW: 10.0,
+            satelliteConfidence: 95,
+            evidence: normalizedEvidence,
+            assessment,
+            risk_score: 15,
+            risk_level: 'LOW',
+          };
+        }
+        return h;
+      })
+    );
+
+    showToast('Thermal Anomaly Normalized', 'Component / sector temperature successfully normalized by safety response team.', 'cyan');
+  };
+
   const handleSimulatePass = () => {
     const newHotspot = generateRealtimeHotspot();
 
@@ -255,13 +289,14 @@ export default function App() {
     ]);
 
     setSelectedHotspot(newHotspot);
+    setEmergencyBannerHotspot(newHotspot);
 
     alertEngineInstance.evaluateHotspot(newHotspot);
 
     showToast(
-      'New Thermal Hotspot Detected',
-      `${newHotspot.locationName} (${newHotspot.frpMW.toFixed(1)} MW FRP).`,
-      'orange'
+      '🚨 EMERGENCY MAP ANOMALY DETECTED',
+      `${newHotspot.locationName} (${newHotspot.frpMW.toFixed(1)} MW FRP). Worker notification dispatched.`,
+      'red'
     );
   };
 
@@ -407,11 +442,16 @@ export default function App() {
         />
       )}
 
-      <div className="relative min-h-screen bg-[#05080D] text-slate-100 selection:bg-[#38BDF8]/30 selection:text-white overflow-hidden p-2 sm:p-4 lg:p-6">
+      {/* Main Screen Emergency Anomaly Detection Banner */}
+      <MainScreenEmergencyBanner
+        hotspot={emergencyBannerHotspot}
+        onNormalize={(id) => handleNormalizeHotspot(id)}
+        onDismiss={() => setEmergencyBannerHotspot(null)}
+      />
 
-        {/* Main Outer Frame */}
-        <div className="virevo-outer-frame relative z-10 mx-auto max-w-[1840px] overflow-hidden">
-
+      {/* Main Tactical Application Layer */}
+      <div className="relative min-h-screen bg-[#05080D] text-slate-100 font-sans">
+        <div className="relative z-10 flex flex-col min-h-screen">
           {/* Tactical Top Navigation Bar */}
           <TacticalTopNav
             activePill={activePill}
