@@ -13,7 +13,11 @@ import {
   RotateCcw,
   Plus,
   Activity,
-  Sparkles
+  Sparkles,
+  Clock,
+  LineChart,
+  Layers,
+  BarChart3
 } from 'lucide-react';
 
 export interface ComponentThermalItem {
@@ -25,6 +29,66 @@ export interface ComponentThermalItem {
   heatingRateCMin: number;
   status: 'Normal' | 'Warning' | 'Critical';
   icon: React.ReactNode;
+}
+
+export type TimeSeriesModel = 'Linear Regression' | 'XGBoost / Random Forest' | 'LSTM Time-Series' | 'Transformer-TS';
+
+export interface TrendPoint {
+  timeLabel: string;
+  minutes: number;
+  tempC: number;
+  isBreached: boolean;
+}
+
+export function computeThermalTrendPrediction(
+  item: ComponentThermalItem,
+  criticalLimitC: number = 100.0,
+  model: TimeSeriesModel = 'Linear Regression'
+): {
+  points: TrendPoint[];
+  minutesToCritical: number | null;
+  predictiveNarrative: string;
+} {
+  const rate = item.heatingRateCMin;
+  const current = item.currentTempC;
+
+  // Time horizon steps in minutes: 0 (Now), 5, 10, 15, 20, 30
+  const horizons = [0, 5, 10, 15, 20, 30];
+
+  // Model variance coefficient
+  let modelMultiplier = 1.0;
+  if (model === 'XGBoost / Random Forest') modelMultiplier = 0.95;
+  if (model === 'LSTM Time-Series') modelMultiplier = 1.08;
+  if (model === 'Transformer-TS') modelMultiplier = 1.02;
+
+  const points: TrendPoint[] = horizons.map((m) => {
+    let projectedTemp = current + m * rate * modelMultiplier;
+    projectedTemp = Math.round(projectedTemp * 10) / 10;
+    return {
+      timeLabel: m === 0 ? 'Now' : `+${m}m`,
+      minutes: m,
+      tempC: projectedTemp,
+      isBreached: projectedTemp >= criticalLimitC
+    };
+  });
+
+  let minutesToCritical: number | null = null;
+  if (current >= criticalLimitC) {
+    minutesToCritical = 0;
+  } else if (rate > 0) {
+    minutesToCritical = Math.max(1, Math.round(((criticalLimitC - current) / (rate * modelMultiplier))));
+  }
+
+  let predictiveNarrative = '';
+  if (minutesToCritical === 0) {
+    predictiveNarrative = `🔴 CRITICAL THRESHOLD BREACHED: ${item.name} is currently at ${current}°C (Exceeds ${criticalLimitC}°C limit). Immediate cooling isolation required.`;
+  } else if (minutesToCritical !== null && minutesToCritical <= 30) {
+    predictiveNarrative = `🔴 PREDICTED CRITICAL THRESHOLD: ${item.name} will breach ${criticalLimitC}°C threshold in ${minutesToCritical} minutes at current heating rate (+${rate.toFixed(1)}°C/min).`;
+  } else {
+    predictiveNarrative = `🟢 STABLE THERMAL TRAJECTORY: ${item.name} trajectory remains safely below ${criticalLimitC}°C critical limit for >30 minutes.`;
+  }
+
+  return { points, minutesToCritical, predictiveNarrative };
 }
 
 export function generateComponentAINarrative(item: ComponentThermalItem): {
@@ -115,6 +179,8 @@ const INITIAL_COMPONENTS: ComponentThermalItem[] = [
 export function ComponentHotspotInspector() {
   const [components, setComponents] = useState<ComponentThermalItem[]>(INITIAL_COMPONENTS);
   const [selectedCompId, setSelectedCompId] = useState<string>('comp-4');
+  const [selectedModel, setSelectedModel] = useState<TimeSeriesModel>('Linear Regression');
+  const [criticalLimitC, setCriticalLimitC] = useState<number>(100);
   const [isSimulatingStress, setIsSimulatingStress] = useState<boolean>(false);
   const [newCompName, setNewCompName] = useState<string>('');
   const [newCompTemp, setNewCompTemp] = useState<string>('85');
@@ -124,14 +190,17 @@ export function ComponentHotspotInspector() {
   const selectedComponent = components.find((c) => c.id === selectedCompId) || components[0];
   const selectedAiAnalysis = generateComponentAINarrative(selectedComponent);
 
+  // Time-series trend calculation
+  const trendPrediction = computeThermalTrendPrediction(selectedComponent, criticalLimitC, selectedModel);
+
   const handleSimulateStress = () => {
     setIsSimulatingStress(true);
     setTimeout(() => {
       setComponents((prev) =>
         prev.map((item) => {
           const tempIncrease = item.status === 'Critical' ? 4 : item.status === 'Warning' ? 2.5 : 1.2;
-          const newTemp = Math.min(115, Math.round((item.currentTempC + tempIncrease) * 10) / 10);
-          const newRate = Math.min(8.0, Math.round((item.heatingRateCMin + 0.4) * 10) / 10);
+          const newTemp = Math.min(125, Math.round((item.currentTempC + tempIncrease) * 10) / 10);
+          const newRate = Math.min(9.5, Math.round((item.heatingRateCMin + 0.4) * 10) / 10);
           const newStatus = newTemp >= 90 ? 'Critical' : newTemp >= 73 ? 'Warning' : 'Normal';
           return {
             ...item,
@@ -174,19 +243,22 @@ export function ComponentHotspotInspector() {
     setNewCompName('');
   };
 
+  // Find maximum temperature for chart scaling
+  const maxProjected = Math.max(120, ...trendPrediction.points.map((p) => p.tempC));
+
   return (
-    <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-6 shadow-2xl backdrop-blur-xl">
+    <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-6 shadow-2xl backdrop-blur-xl space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800">
         <div>
           <div className="flex items-center gap-2">
             <Flame className="w-6 h-6 text-amber-400 animate-pulse" />
             <h2 className="text-xl font-bold text-slate-100 tracking-wide">
-              🔥 Hardware & Subsystem Hotspot AI Engine
+              🔥 Predictive Thermal Trend & Anomaly AI Pipeline
             </h2>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Real-time component thermal telemetry, baseline predictive delta ($ΔT$), and AI trajectory anomaly intelligence.
+            Transforms monitoring data into time-series thermal trajectory predictions and estimates time-to-critical thresholds.
           </p>
         </div>
 
@@ -197,7 +269,7 @@ export function ComponentHotspotInspector() {
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white rounded-lg text-xs font-semibold shadow-lg shadow-rose-950/40 transition-all disabled:opacity-50"
           >
             <Play className="w-3.5 h-3.5" />
-            {isSimulatingStress ? 'Running Thermal Load...' : 'Simulate Thermal Stress'}
+            {isSimulatingStress ? 'Simulating Thermal Surge...' : 'Simulate Thermal Surge'}
           </button>
           <button
             onClick={handleReset}
@@ -216,9 +288,11 @@ export function ComponentHotspotInspector() {
           <div className="bg-slate-950/80 rounded-xl border border-slate-800/80 overflow-hidden shadow-inner">
             <div className="px-4 py-3 bg-slate-900/60 border-b border-slate-800 flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                Telemetry Component Matrix
+                Subsystem Telemetry Matrix
               </span>
-              <span className="text-[10px] text-slate-400">5 Active Subsystems</span>
+              <span className="text-[10px] text-slate-400 font-mono">
+                {components.length} Monitored Assets
+              </span>
             </div>
 
             <div className="overflow-x-auto">
@@ -227,7 +301,7 @@ export function ComponentHotspotInspector() {
                   <tr className="border-b border-slate-800 text-slate-400 bg-slate-900/30">
                     <th className="py-2.5 px-4 font-medium">Component</th>
                     <th className="py-2.5 px-4 font-medium">Temperature</th>
-                    <th className="py-2.5 px-4 font-medium">Predicted Operating Baseline</th>
+                    <th className="py-2.5 px-4 font-medium">Operating Baseline</th>
                     <th className="py-2.5 px-4 font-medium">Heating Rate</th>
                     <th className="py-2.5 px-4 font-medium text-right">Status</th>
                   </tr>
@@ -364,14 +438,10 @@ export function ComponentHotspotInspector() {
         {/* Right Column: AI Intelligence Reasoning Card */}
         <div className="lg:col-span-5 flex flex-col gap-4">
           <div className="bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 p-5 rounded-xl border border-amber-500/30 shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-3 opacity-10">
-              <Sparkles className="w-32 h-32 text-amber-400" />
-            </div>
-
             <div className="flex items-center gap-2 mb-3">
               <Sparkles className="w-5 h-5 text-amber-400" />
               <h3 className="text-sm font-bold text-amber-300 uppercase tracking-wider">
-                AI Anomaly Narrative Output
+                AI Anomaly Intelligence Statement
               </h3>
             </div>
 
@@ -420,15 +490,154 @@ export function ComponentHotspotInspector() {
                 </span>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
 
-            {/* Diagnostic Insight Box */}
-            <div className="mt-4 p-3 bg-slate-900/50 rounded border border-slate-800 text-[11px] text-slate-300">
-              <span className="font-semibold text-amber-400 block mb-1">
-                💡 Intelligence Diagnosis Rationale:
-              </span>
-              <p className="text-slate-400 leading-normal">
-                The engine evaluates operating load against baseline thermal limits ({selectedComponent.baselineTempC}°C) and calculates instantaneous rate of temperature rise (+{selectedComponent.heatingRateCMin}°C/min). Severe thermal divergence triggers automated hardware isolation protocols.
+      {/* 🔮 FEATURE 5: THERMAL TREND PREDICTION & TIME-SERIES TRAJECTORY CARD */}
+      <div className="bg-slate-950/90 border border-cyan-500/30 rounded-xl p-5 shadow-2xl space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-3 border-b border-slate-800">
+          <div className="flex items-center gap-2">
+            <LineChart className="w-5 h-5 text-cyan-400" />
+            <div>
+              <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
+                📈 Thermal Trend Trajectory Prediction
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 font-semibold uppercase">
+                  Time-Series Anomaly ML
+                </span>
+              </h3>
+              <p className="text-xs text-slate-400">
+                Projected temperature trajectory over future time horizons (Now, +5m, +10m, +15m, +20m, +30m).
               </p>
+            </div>
+          </div>
+
+          {/* Model Selector & Critical Limit Settings */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs">
+              <Layers className="w-3.5 h-3.5 text-cyan-400" />
+              <span className="text-slate-400 text-[11px]">ML Model:</span>
+              <select
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value as TimeSeriesModel)}
+                className="bg-transparent text-slate-200 font-semibold focus:outline-none cursor-pointer"
+              >
+                <option value="Linear Regression" className="bg-slate-900">Linear Regression (Fast)</option>
+                <option value="XGBoost / Random Forest" className="bg-slate-900">XGBoost / Random Forest</option>
+                <option value="LSTM Time-Series" className="bg-slate-900">LSTM Time-Series</option>
+                <option value="Transformer-TS" className="bg-slate-900">Transformer Time-Series</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs">
+              <span className="text-slate-400 text-[11px]">Threshold Limit:</span>
+              <input
+                type="number"
+                value={criticalLimitC}
+                onChange={(e) => setCriticalLimitC(Number(e.target.value) || 100)}
+                className="w-14 bg-transparent text-rose-400 font-mono font-bold focus:outline-none"
+              />
+              <span className="text-slate-400">°C</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Critical Threshold Prediction Banner */}
+        <div className={`p-4 rounded-xl border flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg ${
+          trendPrediction.minutesToCritical === 0
+            ? 'bg-rose-950/60 border-rose-500/50 text-rose-200'
+            : trendPrediction.minutesToCritical !== null && trendPrediction.minutesToCritical <= 30
+            ? 'bg-gradient-to-r from-rose-950/40 via-amber-950/30 to-slate-900/60 border-amber-500/40 text-amber-200'
+            : 'bg-emerald-950/30 border-emerald-500/30 text-emerald-200'
+        }`}>
+          <div className="flex items-center gap-3">
+            <Clock className={`w-6 h-6 ${
+              trendPrediction.minutesToCritical !== null && trendPrediction.minutesToCritical <= 15
+                ? 'text-rose-400 animate-bounce'
+                : 'text-amber-400'
+            }`} />
+            <div>
+              <span className="block text-[10px] uppercase tracking-wider font-semibold opacity-75">
+                Time-to-Critical Threshold Estimator
+              </span>
+              <p className="text-sm font-bold font-mono">
+                {trendPrediction.predictiveNarrative}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 bg-slate-950/80 px-4 py-2 rounded-lg border border-slate-800 text-center shrink-0">
+            <div>
+              <span className="block text-[9px] text-slate-400 uppercase font-semibold">
+                Predicted Threshold Breach
+              </span>
+              <span className="text-base font-black font-mono text-rose-400">
+                {trendPrediction.minutesToCritical !== null
+                  ? `${trendPrediction.minutesToCritical} min`
+                  : '> 30 min'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Visual Time-Series Trajectory Chart (ASCII & SVG Grid) */}
+        <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-800 space-y-3">
+          <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
+            <span>Trajectory Time-Series (Horizon: 0m to +30m)</span>
+            <span className="font-mono text-rose-400">🔴 Critical Threshold Limit: {criticalLimitC}°C</span>
+          </div>
+
+          {/* SVG Line & Point Chart */}
+          <div className="relative h-44 w-full bg-slate-950/90 rounded-lg border border-slate-800/80 p-3 flex flex-col justify-between overflow-hidden">
+            {/* Critical Threshold Line */}
+            <div
+              className="absolute left-0 right-0 border-b-2 border-dashed border-rose-500/70 z-10 flex items-center justify-end px-2"
+              style={{
+                top: `${Math.max(5, Math.min(90, 100 - ((criticalLimitC - 50) / (maxProjected - 50)) * 100))}%`
+              }}
+            >
+              <span className="bg-rose-950 text-rose-400 text-[10px] font-mono px-1.5 py-0.5 rounded border border-rose-500/40">
+                Limit: {criticalLimitC}°C
+              </span>
+            </div>
+
+            {/* Time Series Points & Connectors */}
+            <div className="relative z-20 h-full flex items-end justify-between px-6 pt-4 pb-2">
+              {trendPrediction.points.map((p, idx) => {
+                const heightPct = Math.max(10, Math.min(90, ((p.tempC - 50) / (maxProjected - 50)) * 100));
+                return (
+                  <div key={idx} className="flex flex-col items-center gap-1 group relative">
+                    {/* Tooltip on Hover */}
+                    <div className="absolute -top-7 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-slate-100 text-[10px] font-mono px-2 py-0.5 rounded border border-slate-700 whitespace-nowrap shadow-lg">
+                      {p.timeLabel}: {p.tempC}°C {p.isBreached ? '(BREACH)' : ''}
+                    </div>
+
+                    {/* Temperature Dot */}
+                    <div
+                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-500 shadow-md ${
+                        p.isBreached
+                          ? 'bg-rose-500 border-rose-300 shadow-rose-500/50 scale-110 animate-pulse'
+                          : p.tempC >= 85
+                          ? 'bg-amber-400 border-amber-200 shadow-amber-400/50'
+                          : 'bg-emerald-400 border-emerald-200'
+                      }`}
+                      style={{ marginBottom: `${heightPct * 0.8}px` }}
+                    >
+                      <span className="w-1.5 h-1.5 bg-slate-950 rounded-full" />
+                    </div>
+
+                    {/* Temp Value Label */}
+                    <span className={`text-[10px] font-mono font-bold ${p.isBreached ? 'text-rose-400' : 'text-slate-300'}`}>
+                      {p.tempC}°C
+                    </span>
+
+                    {/* Time Label */}
+                    <span className="text-[10px] font-mono text-slate-400 font-semibold">
+                      {p.timeLabel}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

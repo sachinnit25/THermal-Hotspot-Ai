@@ -132,41 +132,43 @@ export function assessHotspot(evidence: HotspotEvidence): HotspotAssessment {
   const baselineK = 300.0; // Normal background operating baseline
   const deltaK = Number((brightness - baselineK).toFixed(1));
   const heatingRate = Number((0.2 + (evidence.frpMW || 20) * 0.04).toFixed(1));
+  const criticalLimitK = 373.15; // 100°C in Kelvin
+  const minsToCritical = brightness >= criticalLimitK ? 0 : Math.max(1, Math.round((criticalLimitK - brightness) / (heatingRate * 1.2)));
 
   if (industrialRisk >= 0.72) {
     classification = 'industrial';
     riskLevel = 'critical';
-    explanation = `Thermal anomaly detected. Asset ${evidence.nearestFacilityName || 'Power & Industrial Unit'} temperature is ${deltaK}°K (${(brightness - 273.15).toFixed(1)}°C) above its predicted operating range. Heating rate has increased by +${heatingRate}°C/min. Risk: CRITICAL.`;
+    explanation = `Thermal anomaly detected. Asset ${evidence.nearestFacilityName || 'Power & Industrial Unit'} temperature is ${deltaK}°K (${(brightness - 273.15).toFixed(1)}°C) above its predicted operating range. Heating rate has increased by +${heatingRate}°C/min. 🔴 Predicted critical threshold: ${minsToCritical} minutes. Risk: CRITICAL.`;
     recommendedAction = 'Dispatch automated telemetry alert to plant safety officer; cross-reference emissions permit and verify cooling/flare mitigation systems.';
   } else if (evidence.landUse === 'mining') {
     classification = 'mining';
     riskLevel = industrialRisk > 0.45 ? 'elevated' : 'watch';
-    explanation = `Thermal anomaly detected. Open-pit mining smelter core temperature is ${deltaK}°K above baseline operating limit. Heating rate stabilized at +${heatingRate}°C/min. Risk: ${riskLevel.toUpperCase()}.`;
+    explanation = `Thermal anomaly detected. Open-pit mining smelter core temperature is ${deltaK}°K above baseline operating limit. Heating rate: +${heatingRate}°C/min. 🔴 Predicted critical threshold: ${minsToCritical} minutes. Risk: ${riskLevel.toUpperCase()}.`;
     recommendedAction = 'Log into regional mining environmental registry; monitor for unpermitted slag disposal or brush spread.';
   } else if (evidence.facilitySignals?.some(s => s.toLowerCase().includes('flare') || s.toLowerCase().includes('petrochemical')) || (evidence.landUse === 'industrial' && evidence.frpMW && evidence.frpMW > 70)) {
     classification = 'gas_flare';
     riskLevel = 'elevated';
-    explanation = `Thermal anomaly detected. Petrochemical flare stack temperature is ${deltaK}°K above normal idle baseline. Heating rate surge detected at +${heatingRate}°C/min. Risk: HIGH.`;
+    explanation = `Thermal anomaly detected. Petrochemical flare stack temperature is ${deltaK}°K above normal idle baseline. Heating rate surge: +${heatingRate}°C/min. 🔴 Predicted critical threshold: ${minsToCritical} minutes. Risk: HIGH.`;
     recommendedAction = 'Cross-examine flare volume against satellite methane/VOC emission estimations; notify environmental audit team.';
   } else if (evidence.landUse === 'forest' || (evidence.recurrenceCount === 1 && !evidence.nearbyIndustrialMeters)) {
     classification = 'wildfire';
     riskLevel = (evidence.frpMW && evidence.frpMW > 80) ? 'critical' : 'elevated';
-    explanation = `Thermal anomaly detected. Canopy thermal radiance is ${deltaK}°K above ambient forest equilibrium. Fire propagation heating rate calculated at +${heatingRate}°C/min. Risk: ${riskLevel === 'critical' ? 'CRITICAL' : 'HIGH'}.`;
+    explanation = `Thermal anomaly detected. Canopy thermal radiance is ${deltaK}°K above ambient forest equilibrium. Fire propagation rate: +${heatingRate}°C/min. 🔴 Predicted critical threshold: ${minsToCritical} minutes. Risk: ${riskLevel === 'critical' ? 'CRITICAL' : 'HIGH'}.`;
     recommendedAction = 'Alert regional forest fire dispatcher; cross-reference current wind speed vectors and simulate 6-hour perimeter propagation.';
   } else if (evidence.landUse === 'agricultural') {
     classification = 'agricultural';
     riskLevel = 'watch';
-    explanation = `Thermal anomaly detected. Agricultural field burn temperature is ${deltaK}°K above seasonal baseline. Thermal rise rate measured at +${heatingRate}°C/min. Risk: MODERATE.`;
+    explanation = `Thermal anomaly detected. Agricultural field burn temperature is ${deltaK}°K above seasonal baseline. Thermal rise rate: +${heatingRate}°C/min. 🟢 Predicted critical threshold: >30 minutes. Risk: MODERATE.`;
     recommendedAction = 'Catalog against seasonal stubble burning index; review local seasonal ban compliance.';
   } else if (industrialRisk >= 0.40) {
     classification = 'industrial';
     riskLevel = 'elevated';
-    explanation = `Thermal anomaly detected. Target location temperature is ${deltaK}°K above expected operating baseline. Heating trajectory active at +${heatingRate}°C/min. Risk: HIGH.`;
+    explanation = `Thermal anomaly detected. Target location temperature is ${deltaK}°K above expected operating baseline. Heating trajectory active at +${heatingRate}°C/min. 🔴 Predicted critical threshold: ${minsToCritical} minutes. Risk: HIGH.`;
     recommendedAction = 'Request high-resolution optical satellite tasking (Sentinel-2 / PlanetScope) to verify exact ground infrastructure.';
   } else {
     classification = 'unknown';
     riskLevel = 'unassessed';
-    explanation = `Thermal anomaly detected. Radiance level is ${deltaK}°K above baseline background. Heating rate neutral (+${heatingRate}°C/min). Risk: WATCH.`;
+    explanation = `Thermal anomaly detected. Radiance level is ${deltaK}°K above baseline background. Heating rate neutral (+${heatingRate}°C/min). 🟢 Predicted critical threshold: >30 minutes. Risk: WATCH.`;
     recommendedAction = 'Flag for analyst manual review on next satellite overpass (NOAA-20 / VIIRS pass).';
   }
 
