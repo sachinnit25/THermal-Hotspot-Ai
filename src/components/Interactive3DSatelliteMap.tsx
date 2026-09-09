@@ -10,9 +10,16 @@ import {
   RotateCcw,
   Brain,
   Moon,
-  ToggleLeft,
-  ToggleRight,
-  CheckCircle
+  CheckCircle,
+  Radio,
+  Navigation,
+  Compass,
+  Sliders,
+  Search,
+  Maximize2,
+  TrendingUp,
+  Flame,
+  Clock
 } from 'lucide-react';
 import {
   ComponentThermalItem,
@@ -20,16 +27,15 @@ import {
   computeThermalTrendPrediction
 } from './ComponentHotspotInspector';
 
-interface Interactive3DSatelliteMapProps {
-  onSelectComponent?: (comp: ComponentThermalItem) => void;
-}
-
 interface ComponentNode3D extends ComponentThermalItem {
   lat: number;
   lon: number;
   locationLabel: string;
   recAction: string;
   aiDiag: string;
+  satType: string;
+  signalQuality: string;
+  frequencyMHz: number;
 }
 
 const ORBIT_NODES: ComponentNode3D[] = [
@@ -45,8 +51,11 @@ const ORBIT_NODES: ComponentNode3D[] = [
     lat: 23.5488,
     lon: 87.2916,
     locationLabel: 'Orbital Array Sector Alpha',
-    aiDiag: 'Possible power-load anomaly.',
-    recAction: 'Reduce non-essential load.'
+    aiDiag: 'Possible power-load anomaly & high dielectric stress.',
+    recAction: 'Reduce non-essential load immediately.',
+    satType: 'Power Bus Satellite Node Alpha',
+    signalQuality: '99.4%',
+    frequencyMHz: 433.92
   },
   {
     id: 'comp-3',
@@ -61,7 +70,10 @@ const ORBIT_NODES: ComponentNode3D[] = [
     lon: -95.1245,
     locationLabel: 'Core Payload Processor Bay',
     aiDiag: 'Elevated floating-point execution load causing localized junction heat.',
-    recAction: 'Throttle core frequency by 15% and balance worker threads.'
+    recAction: 'Throttle core frequency by 15% and balance worker threads.',
+    satType: 'High-Performance Orbital Server',
+    signalQuality: '98.1%',
+    frequencyMHz: 868.10
   },
   {
     id: 'comp-5',
@@ -76,7 +88,10 @@ const ORBIT_NODES: ComponentNode3D[] = [
     lon: -121.4398,
     locationLabel: 'Thermal Dissipation Wing West',
     aiDiag: 'Flow restriction in coolant loop 2 causing mild backpressure.',
-    recAction: 'Engage auxiliary pump manifold to equalize pressure gradient.'
+    recAction: 'Engage auxiliary pump manifold to equalize pressure gradient.',
+    satType: 'Cooling Array Satellite Node',
+    signalQuality: '96.8%',
+    frequencyMHz: 915.00
   },
   {
     id: 'comp-2',
@@ -91,7 +106,10 @@ const ORBIT_NODES: ComponentNode3D[] = [
     lon: 49.6582,
     locationLabel: 'Subsystem Storage Cell 04',
     aiDiag: 'Cell impedance stable. Thermal gradient well within operating bounds.',
-    recAction: 'Maintain steady trickle charge state. No intervention required.'
+    recAction: 'Maintain steady trickle charge state. No intervention required.',
+    satType: 'Energy Cell Storage Satellite',
+    signalQuality: '100%',
+    frequencyMHz: 434.00
   },
   {
     id: 'comp-1',
@@ -106,25 +124,26 @@ const ORBIT_NODES: ComponentNode3D[] = [
     lon: 119.7412,
     locationLabel: 'Photovoltaic Wing Alpha',
     aiDiag: 'Direct solar radiance absorption within designed seasonal envelope.',
-    recAction: 'Normal operational orientation. Sun tracking active.'
+    recAction: 'Normal operational orientation. Sun tracking active.',
+    satType: 'PV Array Orbital Harvester',
+    signalQuality: '99.9%',
+    frequencyMHz: 2400.00
   }
 ];
 
-export const Interactive3DSatelliteMap: React.FC<Interactive3DSatelliteMapProps> = ({
-  onSelectComponent
-}) => {
+export const Interactive3DSatelliteMap: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [selectedNode, setSelectedNode] = useState<ComponentNode3D>(ORBIT_NODES[0]);
-  const [rotation, setRotation] = useState({ rx: 0.3, ry: 0.8 });
+  const [rotation, setRotation] = useState({ rx: 0.25, ry: 0.8 });
   const isDraggingRef = useRef(false);
   const lastMouseRef = useRef({ x: 0, y: 0 });
 
-  // Compute live calculations for selected node
+  // Live calculations
   const delta = (selectedNode.currentTempC - selectedNode.baselineTempC).toFixed(1);
   const hazardScore = computeThermalHazardScore(selectedNode);
   const trend = computeThermalTrendPrediction(selectedNode, 100);
 
-  // Status color helper
+  // Status helper
   const getStatusBadge = (status: string) => {
     if (status === 'Critical') {
       return {
@@ -147,7 +166,7 @@ export const Interactive3DSatelliteMap: React.FC<Interactive3DSatelliteMapProps>
     };
   };
 
-  // Canvas 3D Satellite Globe Renderer
+  // 3D Canvas rendering loop for CyberDefend Satellite Globe
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -166,43 +185,58 @@ export const Interactive3DSatelliteMap: React.FC<Interactive3DSatelliteMapProps>
 
       const cx = width / 2;
       const cy = height / 2;
-      const radius = Math.min(width, height) * 0.32;
+      const radius = Math.min(width, height) * 0.36;
 
-      // Draw Atmospheric Heat Glow Halo
-      const bgGlow = ctx.createRadialGradient(cx, cy, radius * 0.8, cx, cy, radius * 1.5);
-      bgGlow.addColorStop(0, 'rgba(56, 189, 248, 0.15)');
-      bgGlow.addColorStop(0.5, 'rgba(244, 63, 94, 0.08)');
-      bgGlow.addColorStop(1, 'rgba(5, 8, 13, 0)');
-      ctx.fillStyle = bgGlow;
+      // Draw Earth Night-side Atmosphere Glow (CyberDefend visual aesthetic)
+      const atmosphericGlow = ctx.createRadialGradient(cx, cy, radius * 0.7, cx, cy, radius * 1.5);
+      atmosphericGlow.addColorStop(0, 'rgba(56, 189, 248, 0.18)');
+      atmosphericGlow.addColorStop(0.5, 'rgba(14, 165, 233, 0.08)');
+      atmosphericGlow.addColorStop(1, 'rgba(2, 6, 23, 0)');
+      ctx.fillStyle = atmosphericGlow;
       ctx.fillRect(0, 0, width, height);
 
-      // Draw Main Earth Sphere Body
+      // Draw Earth Globe Surface Gradient
       const globeGrad = ctx.createRadialGradient(
-        cx - radius * 0.3,
-        cy - radius * 0.3,
+        cx - radius * 0.35,
+        cy - radius * 0.35,
         radius * 0.1,
         cx,
         cy,
         radius
       );
-      globeGrad.addColorStop(0, '#0f172a');
-      globeGrad.addColorStop(0.6, '#090d16');
-      globeGrad.addColorStop(1, '#020408');
+      globeGrad.addColorStop(0, '#0f2636');
+      globeGrad.addColorStop(0.5, '#091522');
+      globeGrad.addColorStop(0.9, '#030811');
+      globeGrad.addColorStop(1, '#010307');
 
       ctx.beginPath();
       ctx.arc(cx, cy, radius, 0, Math.PI * 2);
       ctx.fillStyle = globeGrad;
       ctx.fill();
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      // Draw Latitude / Longitude 3D Wireframe Grids
-      ctx.strokeStyle = 'rgba(56, 189, 248, 0.12)';
+      // Draw Orbital Ring Constellation Lines (Floating satellite orbit paths)
+      const numOrbits = 3;
+      for (let i = 0; i < numOrbits; i++) {
+        const orbitRadius = radius * (1.18 + i * 0.12);
+        const tilt = (i - 1) * 0.35 + rotation.rx * 0.4;
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, orbitRadius, orbitRadius * Math.abs(Math.sin(tilt + 0.5)), tilt, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(56, 189, 248, ${0.18 - i * 0.04})`;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([6, 6]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // Draw Latitude / Longitude 3D Mesh
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.15)';
       ctx.lineWidth = 1;
 
-      // Parallels (Latitude lines)
-      for (let lat = -60; lat <= 60; lat += 30) {
+      // Latitude Parallels
+      for (let lat = -60; lat <= 60; lat += 20) {
         const phi = (lat * Math.PI) / 180;
         const rLat = radius * Math.cos(phi);
         const yLat = cy - radius * Math.sin(phi) * Math.cos(rotation.rx);
@@ -220,9 +254,9 @@ export const Interactive3DSatelliteMap: React.FC<Interactive3DSatelliteMapProps>
         ctx.stroke();
       }
 
-      // Meridians (Longitude lines rotating around Earth axis)
-      for (let lon = 0; lon < 360; lon += 45) {
-        const radLon = ((lon + rotation.ry * 50) * Math.PI) / 180;
+      // Longitude Meridians
+      for (let lon = 0; lon < 360; lon += 30) {
+        const radLon = ((lon + rotation.ry * 40) * Math.PI) / 180;
         ctx.beginPath();
         ctx.ellipse(
           cx,
@@ -236,9 +270,8 @@ export const Interactive3DSatelliteMap: React.FC<Interactive3DSatelliteMapProps>
         ctx.stroke();
       }
 
-      // Render 3D Component Markers on Globe Surface
+      // Render 3D Component / Satellite Nodes & Telemetry Pin Cards
       ORBIT_NODES.forEach((node) => {
-        // Convert lat/lon to 3D Cartesian coordinates
         const phi = (90 - node.lat) * (Math.PI / 180);
         const theta = (node.lon * (Math.PI / 180)) + rotation.ry;
 
@@ -246,11 +279,10 @@ export const Interactive3DSatelliteMap: React.FC<Interactive3DSatelliteMapProps>
         const y3d = radius * Math.cos(phi);
         const z3d = radius * Math.sin(phi) * Math.sin(theta);
 
-        // Apply X-axis tilt rotation
         const yRot = y3d * Math.cos(rotation.rx) - z3d * Math.sin(rotation.rx);
         const zRot = y3d * Math.sin(rotation.rx) + z3d * Math.cos(rotation.rx);
 
-        // Only draw components on visible front hemisphere
+        // Visible front hemisphere
         if (zRot > -radius * 0.35) {
           const px = cx + x3d;
           const py = cy - yRot;
@@ -263,41 +295,58 @@ export const Interactive3DSatelliteMap: React.FC<Interactive3DSatelliteMapProps>
               ? '#fbbf24'
               : '#34d399';
 
-          // Draw Heat Halo Outer Pulsing Ring
+          // Outer heat halo
           ctx.beginPath();
-          ctx.arc(px, py, isSelected ? 18 : 12, 0, Math.PI * 2);
+          ctx.arc(px, py, isSelected ? 18 : 10, 0, Math.PI * 2);
           ctx.fillStyle = markerColor;
           ctx.globalAlpha = isSelected ? 0.35 : 0.2;
           ctx.fill();
           ctx.globalAlpha = 1.0;
 
-          // Draw Solid Core Marker Pin
+          // Solid core marker pin
           ctx.beginPath();
-          ctx.arc(px, py, isSelected ? 7 : 5, 0, Math.PI * 2);
+          ctx.arc(px, py, isSelected ? 6 : 4, 0, Math.PI * 2);
           ctx.fillStyle = markerColor;
           ctx.fill();
           ctx.strokeStyle = '#ffffff';
-          ctx.lineWidth = 2;
+          ctx.lineWidth = 1.5;
           ctx.stroke();
 
-          // Draw Pulsing Selection Target Ring
+          // Dotted radar lock ring
           if (isSelected) {
             ctx.beginPath();
-            ctx.arc(px, py, 24, 0, Math.PI * 2);
+            ctx.arc(px, py, 22, 0, Math.PI * 2);
             ctx.strokeStyle = markerColor;
             ctx.setLineDash([4, 4]);
             ctx.stroke();
             ctx.setLineDash([]);
           }
 
-          // Draw Text Label Tag
-          ctx.font = 'bold 11px monospace';
-          ctx.fillStyle = isSelected ? '#ffffff' : '#cbd5e1';
-          ctx.fillText(node.name, px + 14, py + 4);
+          // CyberDefend Satellite Label Tag Card
+          ctx.fillStyle = 'rgba(5, 12, 22, 0.85)';
+          ctx.strokeStyle = isSelected ? markerColor : 'rgba(56, 189, 248, 0.3)';
+          ctx.lineWidth = 1;
+
+          const labelText = node.name;
+          ctx.font = 'bold 10px monospace';
+          const textWidth = ctx.measureText(labelText).width;
+
+          const boxX = px + 12;
+          const boxY = py - 12;
+          const boxW = textWidth + 16;
+          const boxH = 22;
+
+          ctx.beginPath();
+          ctx.roundRect(boxX, boxY, boxW, boxH, 4);
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = isSelected ? '#ffffff' : '#94a3b8';
+          ctx.fillText(labelText, boxX + 8, boxY + 14);
         }
       });
 
-      // Slowly rotate Globe if not dragging (Slower, elegant orbital motion)
+      // Continuous slow orbital rotation
       if (!isDraggingRef.current) {
         setRotation((prev) => ({ ...prev, ry: prev.ry + 0.0006 }));
       }
@@ -312,7 +361,6 @@ export const Interactive3DSatelliteMap: React.FC<Interactive3DSatelliteMapProps>
     };
   }, [rotation, selectedNode]);
 
-  // Mouse Interaction handlers for rotating Globe (Slower drag sensitivity)
   const handleMouseDown = (e: React.MouseEvent) => {
     isDraggingRef.current = true;
     lastMouseRef.current = { x: e.clientX, y: e.clientY };
@@ -336,420 +384,341 @@ export const Interactive3DSatelliteMap: React.FC<Interactive3DSatelliteMapProps>
   };
 
   return (
-    <div className="glass-panel relative flex flex-col overflow-hidden rounded-2xl border border-cyan-500/20 bg-slate-950/90 shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
-      {/* Top Map Title Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 bg-slate-900/80 px-4 py-3 sm:px-5">
+    <div className="min-h-screen bg-[#040810] text-slate-100 font-sans p-4 sm:p-6 space-y-6">
+      {/* 🚀 CYBERDEFEND TOP COMMAND BAR (Matches Dribbble UI Layout) */}
+      <header className="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-slate-800/80 bg-[#08101d]/90 p-4 rounded-2xl backdrop-blur-xl shadow-2xl">
+        {/* Brand identity */}
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shadow-[0_0_15px_rgba(56,189,248,0.2)]">
-            <Globe className="h-5 w-5 animate-pulse" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 shadow-[0_0_20px_rgba(56,189,248,0.2)]">
+            <Globe className="h-6 w-6 animate-pulse" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-sm font-bold text-slate-100 tracking-wide">
-                🌡️ Interactive 3D Satellite & Component Thermal Map
-              </h2>
-              <span className="font-mono text-[10px] uppercase font-bold text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30">
-                ORBITAL GIS 3D
-              </span>
-            </div>
+            <h1 className="text-lg font-black tracking-wider text-white flex items-center gap-2 font-mono">
+              CYBERDEFEND <span className="text-cyan-400 font-normal text-xs">SATELLITE INTELLIGENCE</span>
+            </h1>
             <p className="text-[11px] text-slate-400">
-              Interactive 3D satellite heat telemetry. Drag to rotate globe & click subsystem pins to inspect.
+              Real-time LEO thermal constellation monitoring & orbital anomaly tracking dashboard.
             </p>
           </div>
         </div>
 
-        {/* Quick Component Nodes Selector */}
-        <div className="flex items-center gap-1.5 overflow-x-auto py-1">
-          {ORBIT_NODES.map((node) => {
-            const isSelected = node.id === selectedNode.id;
-            const badge = getStatusBadge(node.status);
-            return (
-              <button
-                key={node.id}
-                onClick={() => {
-                  setSelectedNode(node);
-                  if (onSelectComponent) onSelectComponent(node);
-                }}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold font-mono transition-all ${
-                  isSelected
-                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-[0_0_10px_rgba(56,189,248,0.2)]'
-                    : 'bg-slate-900/80 text-slate-400 hover:text-slate-200 border border-slate-800'
-                }`}
-              >
-                <span className={`w-2 h-2 rounded-full ${badge.dot}`} />
-                <span>{node.name}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Main Interactive Stage: 3D Globe Canvas & Pop-up Inspector Overlay */}
-      <div className="relative min-h-[480px] sm:min-h-[540px] w-full bg-[#03060c] overflow-hidden flex flex-col md:flex-row">
-        {/* Interactive 3D Canvas */}
-        <div
-          className="relative flex-1 cursor-grab active:cursor-grabbing"
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-        >
-          <canvas ref={canvasRef} className="w-full h-full min-h-[440px]" />
-
-          {/* Grid Overlay Texture */}
-          <div className="pointer-events-none absolute inset-0 hud-grid opacity-20" />
-
-          {/* Drag instruction overlay */}
-          <div className="pointer-events-none absolute bottom-3 left-3 z-10 flex items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/80 px-3 py-1.5 text-[10px] font-mono text-slate-400 backdrop-blur-md">
-            <RotateCcw className="w-3 h-3 text-cyan-400" />
-            <span>DRAG TO ROTATE 3D SATELLITE GLOBE</span>
-          </div>
+        {/* Center Pill Nav */}
+        <div className="flex items-center gap-1.5 bg-[#03060c] p-1.5 rounded-full border border-slate-800 font-mono text-xs">
+          <button className="px-4 py-1.5 rounded-full bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/30">
+            Overview
+          </button>
+          <button className="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">
+            Thermal
+          </button>
+          <button className="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">
+            Alerts
+          </button>
+          <button className="px-4 py-1.5 rounded-full text-slate-400 hover:text-white transition-colors">
+            Attacks
+          </button>
         </div>
 
-        {/* 🎯 INTERACTIVE COMPONENT POP-UP HUD CARD */}
-        <div className="w-full md:w-[380px] border-t md:border-t-0 md:border-l border-slate-800 bg-slate-950/95 p-5 flex flex-col justify-between backdrop-blur-xl shadow-2xl z-20 space-y-4">
-          {/* Header section */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-              <div className="flex items-center gap-2">
-                {selectedNode.icon}
-                <h3 className="text-base font-extrabold text-white tracking-wider font-mono">
-                  {selectedNode.name}
-                </h3>
+        {/* Right Tool Buttons */}
+        <div className="flex items-center gap-2">
+          <button className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white">
+            <Search className="w-4 h-4" />
+          </button>
+          <button className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white">
+            <Sliders className="w-4 h-4" />
+          </button>
+          <button className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white">
+            <Maximize2 className="w-4 h-4" />
+          </button>
+        </div>
+      </header>
+
+      {/* 🌌 MAIN DRIBBBLE 3-PANEL LAYOUT */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* ========================================================
+         * LEFT SIDEBAR: SATELLITE FEED & FILTERS
+         * ======================================================== */}
+        <div className="lg:col-span-3 space-y-4">
+          {/* Top Orbit Feeder Camera Thumbnail Card */}
+          <div className="relative overflow-hidden rounded-2xl border border-slate-800 bg-[#08101d] p-3 shadow-xl">
+            <div className="relative h-40 w-full overflow-hidden rounded-xl bg-slate-950 border border-slate-800">
+              <img
+                src="https://images.unsplash.com/photo-1614728894747-a83421e2b9c9?q=80&w=800&auto=format&fit=crop"
+                alt="Orbital Satellite Feed"
+                className="h-full w-full object-cover opacity-80"
+              />
+              <div className="absolute top-2 left-2 flex items-center gap-1.5 bg-black/70 px-2.5 py-1 rounded text-[10px] font-mono text-cyan-300 border border-cyan-500/30 backdrop-blur-md">
+                <Radio className="w-3 h-3 text-cyan-400 animate-pulse" />
+                <span>TSO: 09.28.112</span>
               </div>
-              <span
-                className={`text-[10px] font-extrabold font-mono px-2.5 py-0.5 rounded border ${
-                  getStatusBadge(selectedNode.status).bg
-                }`}
-              >
-                {getStatusBadge(selectedNode.status).label}
+              <div className="absolute bottom-2 left-2 right-2 bg-slate-950/85 p-2 rounded-lg border border-slate-800/80 font-mono text-[10px] text-slate-300 flex justify-between items-center backdrop-blur-md">
+                <span>SAT-Beam-01 [1296x768]</span>
+                <span className="text-amber-400 font-bold">220 Mbps</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Subsystem Component Node Buttons */}
+          <div className="rounded-2xl border border-slate-800 bg-[#08101d] p-4 space-y-3 shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-800/80 pb-2 font-mono text-xs">
+              <span className="font-bold text-slate-300 uppercase tracking-wider">Subsystem Assets</span>
+              <span className="text-[10px] text-cyan-400 font-bold bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/30">
+                {ORBIT_NODES.length} ACTIVE
               </span>
             </div>
 
-            {/* Main Telemetry Grid (Temperature, Baseline, Deviation, Heating Rate) */}
-            <div className="grid grid-cols-2 gap-2 font-mono text-xs">
-              <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800">
-                <span className="block text-[10px] text-slate-400 uppercase">Temperature:</span>
-                <span
-                  className={`text-base font-black ${
-                    selectedNode.status === 'Critical'
-                      ? 'text-rose-400'
-                      : selectedNode.status === 'Warning'
-                      ? 'text-amber-400'
-                      : 'text-emerald-400'
-                  }`}
-                >
-                  {selectedNode.currentTempC.toFixed(1)}°C
-                </span>
-              </div>
+            <div className="space-y-2">
+              {ORBIT_NODES.map((node) => {
+                const isSelected = node.id === selectedNode.id;
+                const badge = getStatusBadge(node.status);
+                return (
+                  <button
+                    key={node.id}
+                    onClick={() => setSelectedNode(node)}
+                    className={`w-full flex items-center justify-between p-3 rounded-xl border text-xs font-mono transition-all ${
+                      isSelected
+                        ? 'bg-cyan-500/15 border-cyan-500/40 text-white shadow-[0_0_15px_rgba(56,189,248,0.15)]'
+                        : 'bg-[#03060c] border-slate-800/80 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      {node.icon}
+                      <span className="font-bold">{node.name}</span>
+                    </div>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${badge.bg}`}>
+                      {node.currentTempC}°C
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
 
-              <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800">
-                <span className="block text-[10px] text-slate-400 uppercase">Baseline:</span>
-                <span className="text-base font-bold text-slate-300">
-                  {selectedNode.baselineTempC.toFixed(1)}°C
-                </span>
-              </div>
+        {/* ========================================================
+         * CENTER STAGE: 3D CYBERDEFEND EARTH GLOBE CANVAS
+         * ======================================================== */}
+        <div className="lg:col-span-6 relative rounded-2xl border border-slate-800 bg-[#060c17] min-h-[560px] flex flex-col justify-between overflow-hidden shadow-2xl">
+          {/* Floating HUD Top Overlay */}
+          <div className="absolute top-4 left-4 right-4 z-10 flex items-center justify-between pointer-events-none">
+            <div className="pointer-events-auto flex items-center gap-2 rounded-xl border border-slate-800 bg-[#040810]/85 px-3 py-1.5 font-mono text-xs text-cyan-300 backdrop-blur-md">
+              <Navigation className="w-3.5 h-3.5 text-cyan-400" />
+              <span>ORBIT: LEO 547km</span>
+            </div>
+            <div className="pointer-events-auto flex items-center gap-2 rounded-xl border border-slate-800 bg-[#040810]/85 px-3 py-1.5 font-mono text-xs text-amber-400 backdrop-blur-md">
+              <Sun className="w-3.5 h-3.5" />
+              <span>SUNLIGHT: HIGH</span>
+            </div>
+          </div>
 
-              <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800">
-                <span className="block text-[10px] text-slate-400 uppercase">Deviation:</span>
-                <span className="text-sm font-extrabold text-rose-400">
-                  +{delta}°C
-                </span>
-              </div>
+          {/* Interactive 3D Canvas */}
+          <div
+            className="relative flex-1 cursor-grab active:cursor-grabbing flex items-center justify-center min-h-[460px]"
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+          >
+            <canvas ref={canvasRef} className="w-full h-full min-h-[460px]" />
 
-              <div className="p-2.5 rounded-lg bg-slate-900/80 border border-slate-800">
-                <span className="block text-[10px] text-slate-400 uppercase">Heating rate:</span>
-                <span className="text-sm font-extrabold text-amber-400">
-                  +{selectedNode.heatingRateCMin.toFixed(1)}°C/min
-                </span>
+            {/* Futuristic Orbit Ring Control Indicator */}
+            <div className="pointer-events-none absolute bottom-4 right-4 z-10">
+              <div className="w-16 h-16 rounded-full border-2 border-cyan-500/30 flex items-center justify-center bg-cyan-950/20 backdrop-blur-md">
+                <div className="w-8 h-8 rounded-full border border-cyan-400/50 flex items-center justify-center text-[9px] font-mono text-cyan-300">
+                  3D
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Satellite Telemetry Control Bar */}
+          <div className="border-t border-slate-800/80 bg-[#040810]/95 p-4 grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
+            <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+              <span className="text-[10px] text-slate-400 block uppercase">Current Speed</span>
+              <span className="text-sm font-extrabold text-white">7.6 km/s</span>
+            </div>
+            <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+              <span className="text-[10px] text-slate-400 block uppercase">Target Speed</span>
+              <span className="text-sm font-extrabold text-cyan-300">27k km/h</span>
+            </div>
+            <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+              <span className="text-[10px] text-slate-400 block uppercase">Targets Detected</span>
+              <span className="text-sm font-extrabold text-amber-400">2 Satellites</span>
+            </div>
+            <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+              <span className="text-[10px] text-slate-400 block uppercase">Next Eclipse</span>
+              <span className="text-sm font-extrabold text-indigo-300">11m 42s</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ========================================================
+         * RIGHT SIDEBAR: SATELLITE CARD HUD (Matches Dribbble Card)
+         * ======================================================== */}
+        <div className="lg:col-span-3 space-y-4">
+          {/* Main Floating Satellite Component Detail Card */}
+          <div className="rounded-2xl border border-cyan-500/30 bg-[#08101d] p-5 space-y-4 shadow-[0_0_30px_rgba(56,189,248,0.15)] relative overflow-hidden backdrop-blur-xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                {selectedNode.icon}
+                <h3 className="font-extrabold font-mono text-white text-sm tracking-wide">
+                  {selectedNode.name}
+                </h3>
+              </div>
+              <span className={`text-[10px] font-extrabold font-mono px-2.5 py-0.5 rounded border ${getStatusBadge(selectedNode.status).bg}`}>
+                {selectedNode.status}
+              </span>
+            </div>
+
+            {/* Satellite Render Preview Image */}
+            <div className="relative h-36 w-full rounded-xl overflow-hidden bg-slate-950 border border-slate-800 flex items-center justify-center p-2">
+              <img
+                src="https://images.unsplash.com/photo-1541185933-ef5d8ed016c2?q=80&w=800&auto=format&fit=crop"
+                alt="Satellite Hardware preview"
+                className="h-full w-full object-cover rounded-lg opacity-85"
+              />
+              <div className="absolute bottom-2 right-2 bg-black/80 px-2 py-0.5 rounded text-[10px] font-mono text-cyan-300 border border-cyan-500/30">
+                Freq: {selectedNode.frequencyMHz} MHz
               </div>
             </div>
 
-            {/* THERMAL HAZARD SCORE CARD */}
-            <div className="p-3 rounded-xl bg-slate-900/90 border border-rose-500/30 flex items-center justify-between">
-              <div>
-                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  Hazard Score:
+            {/* Exact Telemetry Values Grid */}
+            <div className="grid grid-cols-2 gap-2 font-mono text-xs">
+              <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+                <span className="block text-[10px] text-slate-400 uppercase">Temperature</span>
+                <span className={`text-base font-black ${selectedNode.status === 'Critical' ? 'text-rose-400' : 'text-amber-400'}`}>
+                  {selectedNode.currentTempC}°C
                 </span>
-                <div className="flex items-baseline gap-1 mt-0.5">
-                  <span className={`text-2xl font-black font-mono ${hazardScore.statusColor}`}>
+              </div>
+              <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+                <span className="block text-[10px] text-slate-400 uppercase">Baseline</span>
+                <span className="text-base font-bold text-slate-300">{selectedNode.baselineTempC}°C</span>
+              </div>
+              <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+                <span className="block text-[10px] text-slate-400 uppercase">Deviation</span>
+                <span className="text-sm font-extrabold text-rose-400">+{delta}°C</span>
+              </div>
+              <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800">
+                <span className="block text-[10px] text-slate-400 uppercase">Heating Rate</span>
+                <span className="text-sm font-extrabold text-amber-400">+{selectedNode.heatingRateCMin}°C/min</span>
+              </div>
+            </div>
+
+            {/* Signature Hazard Score (0-100) */}
+            <div className="p-3 rounded-xl bg-slate-950 border border-rose-500/30 flex items-center justify-between">
+              <div>
+                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+                  THERMAL HAZARD SCORE
+                </span>
+                <div className="flex items-baseline gap-1 mt-0.5 font-mono">
+                  <span className={`text-2xl font-black ${hazardScore.statusColor}`}>
                     {hazardScore.totalScore}
                   </span>
-                  <span className="text-xs font-mono text-slate-500">/ 100</span>
+                  <span className="text-xs text-slate-500">/ 100</span>
                 </div>
               </div>
-              <span
-                className={`text-xs font-black font-mono px-2.5 py-1 rounded border ${
-                  hazardScore.totalScore >= 80
-                    ? 'bg-rose-500/20 text-rose-400 border-rose-500/40 animate-pulse'
-                    : 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                }`}
-              >
+              <span className={`text-xs font-black font-mono px-2.5 py-1 rounded border ${hazardScore.totalScore >= 80 ? 'bg-rose-500/20 text-rose-400 border-rose-500/40 animate-pulse' : 'bg-amber-500/20 text-amber-300'}`}>
                 {hazardScore.statusLabel}
               </span>
             </div>
 
-            {/* PREDICTED CRITICAL COUNTDOWN */}
-            <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/40 text-xs font-mono">
-              <span className="block text-[10px] text-rose-300 uppercase font-bold mb-1">
-                Predicted critical:
-              </span>
-              <p className="text-sm font-extrabold text-white">
-                {trend.minutesToCritical !== null
-                  ? `${trend.minutesToCritical}m 42s`
-                  : '> 30m safe trajectory'}
-              </p>
-            </div>
-
-            {/* AI DIAGNOSIS */}
-            <div className="space-y-1.5 text-xs">
-              <div className="flex items-center gap-1.5 text-purple-400 font-bold text-[11px] uppercase tracking-wider">
-                <Brain className="w-3.5 h-3.5" />
-                <span>AI Diagnosis:</span>
-              </div>
-              <p className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-200 text-[11px] leading-relaxed">
-                {selectedNode.aiDiag}
-              </p>
-            </div>
-
-            {/* RECOMMENDED COUNTERMEASURE */}
-            <div className="space-y-1.5 text-xs">
-              <div className="flex items-center gap-1.5 text-cyan-400 font-bold text-[11px] uppercase tracking-wider">
+            {/* AI Countermeasure Recommendation */}
+            <div className="space-y-1.5 text-xs font-mono">
+              <div className="flex items-center gap-1.5 text-cyan-400 font-bold text-[11px] uppercase">
                 <ShieldAlert className="w-3.5 h-3.5" />
-                <span>Recommended:</span>
+                <span>Recommended Action</span>
               </div>
-              <p className="p-2.5 rounded-lg bg-cyan-950/40 border border-cyan-500/30 text-cyan-200 text-[11px] font-medium leading-relaxed">
+              <p className="p-2.5 rounded-lg bg-cyan-950/30 border border-cyan-500/30 text-cyan-200 text-[11px] leading-relaxed">
                 {selectedNode.recAction}
               </p>
             </div>
           </div>
-
-          <div className="pt-2 border-t border-slate-800 text-[10px] text-slate-500 font-mono flex items-center justify-between">
-            <span>GRID COORDS: {selectedNode.lat.toFixed(2)}°, {selectedNode.lon.toFixed(2)}°</span>
-            <span className="text-cyan-400 font-bold">3D SYNCHRONIZED</span>
-          </div>
         </div>
       </div>
 
-      {/* 🛰️ ORBITAL THERMAL CONTEXT & CAUSAL CORRELATION PANEL */}
-      <div className="border-t border-slate-800 bg-slate-950 p-5 space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800 pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
-              <Sun className="w-5 h-5 animate-pulse" />
-            </div>
-            <div>
-              <h3 className="text-sm font-extrabold text-white uppercase tracking-wider font-mono flex items-center gap-2">
-                Orbital Thermal Context & Solar Correlation
-              </h3>
-              <p className="text-[11px] text-slate-400">
-                Correlating satellite LEO orbital mechanics, solar irradiance flux, and subsystem thermal load.
-              </p>
-            </div>
-          </div>
-          <span className="text-[10px] font-mono font-bold px-3 py-1 rounded-full bg-cyan-950/80 text-cyan-300 border border-cyan-500/30">
-            ORBITAL INTELLIGENCE ACTIVE
+      {/* ========================================================
+       * BOTTOM TIME-SERIES ANOMALY WAVEFORM & CORRELATION ROW
+       * ======================================================== */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Table list */}
+        <div className="lg:col-span-5 rounded-2xl border border-slate-800 bg-[#08101d] p-4 space-y-3 shadow-xl">
+          <span className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono block border-b border-slate-800 pb-2">
+            Towers & Sector Nodes Active [4]
           </span>
-        </div>
-
-        {/* Causal Flow Chain Diagram */}
-        <div className="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 space-y-2">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono block">
-            ☀️ Solar Radiation & Subsystem Causal Correlation Chain
-          </span>
-          <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-center text-xs font-mono">
-            <div className="p-2 rounded bg-slate-950 border border-amber-500/30 text-amber-300">
-              <div className="font-bold text-[11px]">☀️ SUNLIGHT</div>
-              <div className="text-[9px] text-slate-400 mt-0.5">Orbit entry</div>
-            </div>
-            <div className="p-2 rounded bg-slate-950 border border-slate-800 text-slate-300">
-              <div className="font-bold text-[11px]">↓ RAD FLUX</div>
-              <div className="text-[9px] text-slate-400 mt-0.5">+1361 W/m²</div>
-            </div>
-            <div className="p-2 rounded bg-slate-950 border border-slate-800 text-slate-300">
-              <div className="font-bold text-[11px]">↓ SURF TEMP</div>
-              <div className="text-[9px] text-slate-400 mt-0.5">Rises to +94°C</div>
-            </div>
-            <div className="p-2 rounded bg-slate-950 border border-amber-500/30 text-amber-400">
-              <div className="font-bold text-[11px]">↓ BATTERY TEMP</div>
-              <div className="text-[9px] text-amber-300/80 mt-0.5">Coupled rise</div>
-            </div>
-            <div className="p-2 rounded bg-slate-950 border border-rose-500/40 text-rose-300 font-bold">
-              <div className="font-bold text-[11px]">🔴 ANOMALY</div>
-              <div className="text-[9px] text-rose-400 mt-0.5">Power load peak</div>
-            </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left font-mono text-xs">
+              <thead>
+                <tr className="border-b border-slate-800 text-slate-400">
+                  <th className="py-2 px-2">ID</th>
+                  <th className="py-2 px-2">Location</th>
+                  <th className="py-2 px-2">Load</th>
+                  <th className="py-2 px-2 text-right">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/60 text-slate-300">
+                <tr>
+                  <td className="py-2 px-2 text-cyan-300 font-bold">TWR-001</td>
+                  <td className="py-2 px-2">Portland, OR</td>
+                  <td className="py-2 px-2 text-amber-400 font-bold">94%</td>
+                  <td className="py-2 px-2 text-right text-rose-400 font-bold">CRITICAL</td>
+                </tr>
+                <tr>
+                  <td className="py-2 px-2 text-cyan-300 font-bold">MS-55</td>
+                  <td className="py-2 px-2">Seattle, WA</td>
+                  <td className="py-2 px-2">62%</td>
+                  <td className="py-2 px-2 text-right text-amber-400 font-bold">ELEVATED</td>
+                </tr>
+                <tr>
+                  <td className="py-2 px-2 text-cyan-300 font-bold">HFX-900</td>
+                  <td className="py-2 px-2">San Francisco, CA</td>
+                  <td className="py-2 px-2">38%</td>
+                  <td className="py-2 px-2 text-right text-emerald-400 font-bold">NORMAL</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
-        {/* Telemetry Metrics Grid (Exact requested specifications) */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 font-mono text-xs">
-          <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800">
-            <span className="block text-[10px] text-slate-400 uppercase">Altitude:</span>
-            <span className="text-base font-extrabold text-slate-100">547 km</span>
-          </div>
-
-          <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800">
-            <span className="block text-[10px] text-slate-400 uppercase">Orbit:</span>
-            <span className="text-base font-extrabold text-cyan-300">LEO</span>
-          </div>
-
-          <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-800">
-            <span className="block text-[10px] text-slate-400 uppercase">Velocity:</span>
-            <span className="text-base font-extrabold text-slate-100">7.6 km/s</span>
-          </div>
-
-          <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/30">
-            <span className="block text-[10px] text-amber-400 uppercase font-bold">☀️ Sunlight exposure:</span>
-            <span className="text-base font-black text-amber-300">HIGH</span>
-          </div>
-
-          <div className="p-3 rounded-xl bg-rose-950/30 border border-rose-500/30">
-            <span className="block text-[10px] text-rose-400 uppercase font-bold">Thermal load:</span>
-            <span className="text-base font-black text-rose-300">HIGH</span>
-          </div>
-
-          <div className="p-3 rounded-xl bg-cyan-950/30 border border-cyan-500/30">
-            <span className="block text-[10px] text-cyan-300 uppercase font-bold">Next eclipse:</span>
-            <span className="text-base font-black text-cyan-200">11 min</span>
-            <span className="block text-[9px] text-cyan-400/80 font-normal">Expected temp: ↓ 14°C</span>
-          </div>
-        </div>
-
-        {/* 🌍 FEATURE 10: PREDICTIVE ECLIPSE MODE CARD */}
-        <div className="p-4 rounded-xl bg-indigo-950/40 border border-indigo-500/40 space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-indigo-500/30 pb-2">
-            <div className="flex items-center gap-2">
-              <Moon className="w-5 h-5 text-indigo-400 animate-bounce" />
-              <h4 className="text-xs font-extrabold text-indigo-200 uppercase tracking-wider font-mono">
-                🌍 PREDICTIVE ECLIPSE MODE · FALSE ALARM REDUCTION
-              </h4>
-            </div>
-            <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-              ORBITAL ECLIPSE INTELLIGENCE
+        {/* Time-Series Thermal Waveform Graph (Dribbble Chart) */}
+        <div className="lg:col-span-7 rounded-2xl border border-slate-800 bg-[#08101d] p-5 space-y-3 shadow-xl">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+            <span className="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">
+              CHANCE OF THERMAL ANOMALY BREACH (TIME-SERIES WAVEFORM)
+            </span>
+            <span className="text-[10px] font-mono text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/30">
+              LSTM / TRANSFORMER-TS REALTIME
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs font-mono">
-            {/* Box 1: Eclipse Status */}
-            <div className="p-3 rounded-lg bg-slate-900/90 border border-slate-800 space-y-1">
-              <span className="text-[10px] text-indigo-300 uppercase font-bold flex items-center gap-1">
-                <Moon className="w-3.5 h-3.5 text-indigo-400" /> Eclipse Countdown
-              </span>
-              <p className="text-sm font-extrabold text-white">
-                🛰️ Satellite entering eclipse in 11 minutes.
-              </p>
-              <p className="text-[10px] text-indigo-300 font-semibold">
-                Expected thermal drop: 12–16°C.
-              </p>
+          {/* Waveform Graphic Container */}
+          <div className="relative h-32 w-full bg-slate-950/90 rounded-xl border border-slate-800/80 p-3 flex flex-col justify-between overflow-hidden">
+            <div className="flex justify-between text-[10px] font-mono text-slate-500">
+              <span>200°C</span>
+              <span>150°C</span>
+              <span>100°C CRITICAL</span>
+              <span>50°C</span>
             </div>
 
-            {/* Box 2: Solar Cycle Dynamic Contrast */}
-            <div className="p-3 rounded-lg bg-slate-900/90 border border-slate-800 space-y-1">
-              <span className="text-[10px] text-amber-400 uppercase font-bold">
-                Orbital Shadow Dynamics
-              </span>
-              <div className="space-y-0.5 text-[11px]">
-                <div className="text-amber-300">☀️ During sunlight: Solar heating ↑ | Temp ↑</div>
-                <div className="text-indigo-300">🌑 During eclipse: Solar heating ↓ | Temp ↓</div>
-              </div>
-            </div>
+            {/* Glowing Waveform Curve */}
+            <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="none" viewBox="0 0 500 100">
+              <path
+                d="M 0 70 Q 70 20, 130 65 T 260 30 T 380 80 T 500 25"
+                fill="none"
+                stroke="url(#waveGradient)"
+                strokeWidth="3"
+              />
+              <defs>
+                <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#38bdf8" />
+                  <stop offset="50%" stopColor="#fbbf24" />
+                  <stop offset="100%" stopColor="#f43f5e" />
+                </linearGradient>
+              </defs>
+            </svg>
 
-            {/* Box 3: AI Thermal Filtering (Normal vs Abnormal) */}
-            <div className="p-3 rounded-lg bg-slate-900/90 border border-emerald-500/40 space-y-1">
-              <span className="text-[10px] text-emerald-400 uppercase font-bold flex items-center gap-1">
-                <Brain className="w-3.5 h-3.5 text-emerald-400" /> AI Anomaly Filtering
-              </span>
-              <div className="text-[11px] text-slate-200">
-                Distinguishes <span className="text-emerald-400 font-bold">Normal orbital heating</span> from <span className="text-rose-400 font-bold">Abnormal thermal heating</span>.
-              </div>
-              <span className="inline-block text-[9px] font-bold text-emerald-300 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">
-                FALSE ALARMS REDUCED BY 96.4%
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* 🚨 FEATURE 11: FALSE ALARM REDUCTION MATRIX */}
-        <div className="p-4 rounded-xl bg-slate-900/90 border-2 border-emerald-500/40 space-y-3 shadow-xl">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2">
-            <div className="flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-emerald-400 animate-pulse" />
-              <h4 className="text-xs font-extrabold text-white uppercase tracking-wider font-mono">
-                🚨 FEATURE 11: CONTEXT-AWARE FALSE ALARM REDUCTION ENGINE
-              </h4>
-            </div>
-            <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-              SMART DISCRIMINATOR
-            </span>
-          </div>
-
-          <p className="text-[11px] text-slate-300 font-mono">
-            Traditional thermal thresholds falsely trigger alarms at 90°C during solar facing. ThermalGuard AI evaluates 4-point orbital context before classifying:
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-xs">
-            {/* Scenario A: Normal Orbital Heating (Filtered out) */}
-            <div className="p-3.5 rounded-xl bg-emerald-950/20 border border-emerald-500/30 space-y-2">
-              <div className="flex items-center justify-between border-b border-emerald-500/20 pb-1.5">
-                <span className="font-bold text-slate-200 text-xs">CASE A: Solar Panel @ 90°C</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                  FILTERED (FALSE ALARM)
-                </span>
-              </div>
-              <div className="space-y-1 text-[11px] text-slate-300">
-                <div className="flex justify-between">
-                  <span>Facing the Sun?</span>
-                  <span className="text-emerald-400 font-bold">YES</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Expected for orbital position?</span>
-                  <span className="text-emerald-400 font-bold">YES</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Increased abnormally?</span>
-                  <span className="text-emerald-400 font-bold">NO</span>
-                </div>
-              </div>
-              <div className="pt-2 border-t border-emerald-500/20 flex items-center justify-between text-xs font-extrabold text-emerald-400">
-                <span>CONCLUSION:</span>
-                <span className="flex items-center gap-1">
-                  <CheckCircle className="w-3.5 h-3.5" /> 🟢 NORMAL THERMAL CONDITION
-                </span>
-              </div>
-            </div>
-
-            {/* Scenario B: Real Thermal Anomaly (Flagged) */}
-            <div className="p-3.5 rounded-xl bg-rose-950/30 border border-rose-500/40 space-y-2">
-              <div className="flex items-center justify-between border-b border-rose-500/20 pb-1.5">
-                <span className="font-bold text-slate-200 text-xs">CASE B: Power Module @ 90°C</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 border border-rose-500/40 animate-pulse">
-                  ALARM VERIFIED
-                </span>
-              </div>
-              <div className="space-y-1 text-[11px] text-slate-300">
-                <div className="flex justify-between">
-                  <span>Sun exposure?</span>
-                  <span className="text-slate-200">NORMAL</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Temperature rise?</span>
-                  <span className="text-rose-400 font-bold">ABNORMAL (+4.2°C/min)</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Historical pattern?</span>
-                  <span className="text-rose-400 font-bold">ABNORMAL</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Component criticality?</span>
-                  <span className="text-rose-400 font-bold">CRITICAL</span>
-                </div>
-              </div>
-              <div className="pt-2 border-t border-rose-500/20 flex items-center justify-between text-xs font-extrabold text-rose-400">
-                <span>CONCLUSION:</span>
-                <span className="flex items-center gap-1">
-                  <ShieldAlert className="w-3.5 h-3.5" /> 🔴 REAL THERMAL ANOMALY
-                </span>
-              </div>
+            <div className="flex justify-between text-[10px] font-mono text-slate-400 relative z-10">
+              <span>Los Angeles, CA</span>
+              <span>Chicago, IL</span>
+              <span>St. Louis, MO</span>
             </div>
           </div>
         </div>
