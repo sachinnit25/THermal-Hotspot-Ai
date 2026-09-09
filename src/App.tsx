@@ -16,7 +16,8 @@ import {
   getInitialHotspotsWithAssessments,
   generateRealtimeHotspot,
   fetchLiveFirmsHotspots,
-  DEFAULT_NASA_MAP_KEY
+  DEFAULT_NASA_MAP_KEY,
+  DEFAULT_GEMINI_API_KEY
 } from './services/firmsData';
 import { assessHotspot, assessHotspotWithGemini } from './services/aiClassifier';
 import { alertEngineInstance } from './services/alertService';
@@ -64,7 +65,7 @@ export default function App() {
     () => localStorage.getItem('firms_map_key') || DEFAULT_NASA_MAP_KEY
   );
   const [geminiApiKey, setGeminiApiKey] = useState<string>(
-    () => localStorage.getItem('gemini_api_key') || ''
+    () => localStorage.getItem('gemini_api_key') || DEFAULT_GEMINI_API_KEY
   );
   const [rules, setRules] = useState<AlertRule[]>(() => alertEngineInstance.getRules());
   const [alerts, setAlerts] = useState<IncidentAlert[]>(() => alertEngineInstance.getAlerts());
