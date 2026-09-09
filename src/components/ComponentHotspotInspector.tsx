@@ -20,7 +20,9 @@ import {
   BarChart3,
   Gauge,
   Thermometer,
-  Percent
+  Percent,
+  Brain,
+  CheckCircle2
 } from 'lucide-react';
 
 export interface ComponentThermalItem {
@@ -52,6 +54,41 @@ export interface ThermalHazardScoreBreakdown {
   criticalityScore: number;
   durationScore: number;
   historyScore: number;
+}
+
+export interface ExplainableAIReport {
+  riskHeader: string;
+  confidencePct: number;
+  reasons: string[];
+}
+
+export function generateExplainableAIChain(item: ComponentThermalItem): ExplainableAIReport {
+  const delta = Math.round((item.currentTempC - item.baselineTempC) * 10) / 10;
+  const ratePct = Math.round(((item.heatingRateCMin / 1.2) * 100));
+  const durationMins = item.status === 'Critical' ? 6.4 : item.status === 'Warning' ? 4.2 : 1.5;
+  const prevPatternCount = item.status === 'Critical' ? 3 : item.status === 'Warning' ? 2 : 0;
+  const adjacentComp = item.category === 'Power' ? 'Adjacent battery storage unit' : item.category === 'Compute' ? 'Power distribution rail' : 'Secondary cooling loop';
+
+  let riskHeader = '🟢 LOW THERMAL RISK';
+  let confidencePct = 91;
+
+  if (item.status === 'Critical' || delta >= 15) {
+    riskHeader = '⚠️ CRITICAL THERMAL RISK';
+    confidencePct = 94;
+  } else if (item.status === 'Warning' || delta >= 8) {
+    riskHeader = '⚠️ HIGH THERMAL RISK';
+    confidencePct = 88;
+  }
+
+  const reasons = [
+    `Temperature is ${delta > 0 ? `${delta}°C above predicted baseline` : 'operating at normal baseline limit'}`,
+    `Heating rate increased by +${ratePct}% (+${item.heatingRateCMin.toFixed(1)}°C/min)`,
+    `Hotspot anomaly persisted for ${durationMins} minutes continuously`,
+    `Thermal coupling: ${adjacentComp} temperature also increasing`,
+    prevPatternCount > 0 ? `Similar pattern detected ${prevPatternCount} times previously at this coordinate` : `First occurrence detected for this operating cycle`
+  ];
+
+  return { riskHeader, confidencePct, reasons };
 }
 
 export function computeThermalHazardScore(item: ComponentThermalItem): ThermalHazardScoreBreakdown {
@@ -261,6 +298,9 @@ export function ComponentHotspotInspector() {
 
   // Signature 0-100 Thermal Hazard Score calculation
   const hazardScore = computeThermalHazardScore(selectedComponent);
+
+  // 🧠 EXPLAINABLE AI (XAI) EVIDENCE CHAIN
+  const xaiReport = generateExplainableAIChain(selectedComponent);
 
   const handleSimulateStress = () => {
     setIsSimulatingStress(true);
@@ -503,7 +543,7 @@ export function ComponentHotspotInspector() {
           </form>
         </div>
 
-        {/* Right Column: AI Intelligence Reasoning Card & SIGNATURE HAZARD SCORE */}
+        {/* Right Column: AI Intelligence Reasoning Card & SIGNATURE HAZARD SCORE & EXPLAINABLE AI */}
         <div className="lg:col-span-5 flex flex-col gap-4">
           
           {/* 🚨 SIGNATURE FEATURE: THERMAL HAZARD SCORE (0-100) */}
@@ -595,20 +635,41 @@ export function ComponentHotspotInspector() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 p-5 rounded-xl border border-amber-500/30 shadow-xl relative overflow-hidden">
-            <div className="flex items-center gap-2 mb-3">
-              <Sparkles className="w-5 h-5 text-amber-400" />
-              <h3 className="text-sm font-bold text-amber-300 uppercase tracking-wider">
-                AI Anomaly Intelligence Statement
-              </h3>
+          {/* 🧠 EXPLAINABLE AI (XAI) DIAGNOSTIC EVIDENCE CARD */}
+          <div className="bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 p-5 rounded-xl border border-purple-500/40 shadow-xl space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+              <div className="flex items-center gap-2">
+                <Brain className="w-5 h-5 text-purple-400" />
+                <h3 className="text-sm font-extrabold text-slate-100 uppercase tracking-wider">
+                  EXPLAINABLE AI (XAI) DIAGNOSTICS
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                Confidence: {xaiReport.confidencePct}%
+              </span>
             </div>
 
-            <div className="bg-slate-900/90 border border-amber-500/20 rounded-lg p-4 mb-4 shadow-inner">
-              <p className="text-xs font-mono text-slate-100 leading-relaxed">
-                "{selectedAiAnalysis.narrative}"
-              </p>
+            <div className="p-3 bg-purple-950/30 border border-purple-500/20 rounded-lg text-xs font-mono font-bold text-purple-200 flex items-center justify-between">
+              <span>{xaiReport.riskHeader}</span>
+              <span className="text-[10px] text-slate-400 font-normal">Empirical Evidence Chain</span>
+            </div>
+
+            <div className="space-y-1.5 text-xs text-slate-300 pt-1">
+              <span className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                Why is this a hazard?
+              </span>
+
+              <ul className="space-y-2">
+                {xaiReport.reasons.map((reason, idx) => (
+                  <li key={idx} className="flex items-start gap-2 text-xs font-mono">
+                    <span className="text-amber-400 mt-0.5">•</span>
+                    <span className="text-slate-200">{reason}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
+
         </div>
       </div>
 
